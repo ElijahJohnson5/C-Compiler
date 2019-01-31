@@ -79,7 +79,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 		}
 
 		if ((tokenType = isLiteral(current)) != -1 && isToken(fileString) != -1) {
-			head->token.type = LITERAL;
+			head->token.type = INT_LITERAL;
 			head->token.value.intLiteral = tokenType;
 			(*tokenCount)++;
 			memset(current, 0, strlen(current));

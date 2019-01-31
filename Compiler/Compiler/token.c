@@ -22,7 +22,7 @@ const char * getTokenType(TokenType type)
 	case CLOSE_BRACE: return "Close brace";
 	case SEMICOLON: return "Semicolon";
 	case KEYWORD: return "Keyword";
-	case LITERAL: return "Literal";
+	case INT_LITERAL: return "Literal";
 	case IDENTIFIER: return "Identifier";
 	}
 	return NULL;

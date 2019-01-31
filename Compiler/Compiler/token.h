@@ -9,7 +9,7 @@ typedef union TokenValue {
 
 typedef enum TokenType {
 	OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
-	SEMICOLON, KEYWORD, IDENTIFIER, LITERAL
+	SEMICOLON, KEYWORD, IDENTIFIER, INT_LITERAL
 } TokenType;
 
 typedef struct Token {

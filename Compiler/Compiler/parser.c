@@ -92,7 +92,7 @@ ASTNode * parseExpr(TokenList ** tokens)
 	expr->type = EXPRESSION;
 	Token token = (*tokens)->token;
 	*tokens = (*tokens)->next;
-	if (token.type != LITERAL) {
+	if (token.type != INT_LITERAL) {
 		return NULL;
 	}
 
