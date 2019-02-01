@@ -10,10 +10,6 @@ void generateFactor(ASTNode * factor, FILE * f)
 {
 	if (factor->type == CONSTANT_INT) {
 		fprintf(f, "movl  $%d,%%eax\n", factor->value);
-		if (onStack == 0) {
-			fprintf(f, "push  %%eax\n");
-			onStack++;
-		}
 	}
 	else if (factor->type == UNARY_OPERATOR) {
 		generateFactor(factor->factor.factor.factor, f);
@@ -38,35 +34,24 @@ void generateFactor(ASTNode * factor, FILE * f)
 
 void generateTerm(ASTNode * term, FILE * f)
 {
-	for (int i = 0; i < term->term.factorCount; i++) {
-		generateFactor(term->term.factor[i], f);
-		if (term->term.op != NULL && i - 1 >= 0) {
-			switch (term->term.op[i - 1]) {
-			case '*':
-				break;
-			case '/':
-				break;
-			}
+	if (term->type == BINARY_OP) {
+		for (int i = 0; i < term->term.factorCount; i++) {
+			generateFactor(term->term.rightFactor[i], f);
+			//Do something with op
 		}
 	}
+	generateFactor(term->term.factor, f);
 }
 
 void generateExpr(ASTNode * expr, FILE *f)
 {
-	for (int i = 0; i < expr->expression.termCount; i++) {
-		generateTerm(expr->expression.term[i], f);
-		if (expr->term.op != NULL && i - 1 >= 0) {
-			switch (expr->expression.op[i - 1]) {
-			case '+':
-				fprintf(f, "pop  %%ecx\n");
-				fprintf(f, "addl  %%ecx, %%eax\n");
-				break;
-			case '-':
-				break;
-			}
-			continue;
+	if (expr->type == BINARY_OP) {
+		for (int i = 0; i < expr->expression.termCount; i++) {
+			generateTerm(expr->expression.rightTerm[i], f);
+			//Do something with op
 		}
 	}
+	generateTerm(expr->expression.term, f);
 }
 
 void generateStatement(ASTNode * statement, FILE *f)

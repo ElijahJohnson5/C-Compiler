@@ -8,7 +8,7 @@ typedef enum ReturnType {
 const char *getReturnType(ReturnType r);
 
 typedef struct ASTNode {
-	enum {PROGRAM, FUNCTION, STATEMENT, EXPRESSION, TERM, FACTOR, UNARY_OPERATOR, CONSTANT_INT } type;
+	enum {PROGRAM, FUNCTION, STATEMENT, EXPRESSION, TERM, FACTOR, UNARY_OPERATOR, CONSTANT_INT, BINARY_OP } type;
 	union {
 		int value;
 		struct {
@@ -21,20 +21,23 @@ typedef struct ASTNode {
 			};
 		} factor;
 		struct {
-			//Can be zero or more
-			//Mult or division
-			char *op;
-			int factorCount;
-			//Can be one or more
-			struct ASTNode **factor;
+			//Multiplication or divison
+			struct ASTNode *factor;
+			struct {
+				int factorCount;
+				struct ASTNode **rightFactor;
+				char *op;
+			};
+
 		} term;
 		struct {
-			//Can be zero or more
 			//Addition or subtraction
-			char *op;
-			int termCount;
-			//Can be one or more
-			struct ASTNode **term;
+			struct ASTNode *term;
+			struct {
+				int termCount;
+				struct ASTNode **rightTerm;
+				char *op;
+			};
 		} expression;
 		struct {
 			int count;
