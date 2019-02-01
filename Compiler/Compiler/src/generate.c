@@ -4,27 +4,69 @@
 #include "generate.h"
 #include "parser.h"
 
-void generateExpr(ASTNode * expr, FILE *f)
+int onStack = 0;
+
+void generateFactor(ASTNode * factor, FILE * f)
 {
-	/*if (expr->type == EXPRESSION) {
-		fprintf(f, "movl  $%d,%%eax\n", expr->value);
+	if (factor->type == CONSTANT_INT) {
+		fprintf(f, "movl  $%d,%%eax\n", factor->value);
+		if (onStack == 0) {
+			fprintf(f, "push  %%eax\n");
+			onStack++;
+		}
 	}
-	else {
-		generateExpr(expr->unaryExpression.expression, f);
-		switch (expr->unaryExpression.unaryOp) {
+	else if (factor->type == UNARY_OPERATOR) {
+		generateFactor(factor->factor.factor.factor, f);
+		switch (factor->factor.factor.unaryOp) {
 		case '-':
 			fprintf(f, "neg  %%eax\n");
+			break;
+		case '~':
+			fprintf(f, "not  %%eax\n");
 			break;
 		case '!':
 			fprintf(f, "cmpl  $0, %%eax\n");
 			fprintf(f, "movl  $0, %%eax\n");
 			fprintf(f, "sete  %%al\n");
 			break;
-		case '~':
-			fprintf(f, "not  %%eax\n");
-			break;
 		}
-	}*/
+	}
+	else {
+
+	}
+}
+
+void generateTerm(ASTNode * term, FILE * f)
+{
+	for (int i = 0; i < term->term.factorCount; i++) {
+		generateFactor(term->term.factor[i], f);
+		if (term->term.op != NULL && i - 1 >= 0) {
+			switch (term->term.op[i - 1]) {
+			case '*':
+				break;
+			case '/':
+				break;
+			}
+		}
+	}
+}
+
+void generateExpr(ASTNode * expr, FILE *f)
+{
+	for (int i = 0; i < expr->expression.termCount; i++) {
+		generateTerm(expr->expression.term[i], f);
+		if (expr->term.op != NULL && i - 1 >= 0) {
+			switch (expr->expression.op[i - 1]) {
+			case '+':
+				fprintf(f, "pop  %%ecx\n");
+				fprintf(f, "addl  %%ecx, %%eax\n");
+				break;
+			case '-':
+				break;
+			}
+			continue;
+		}
+	}
 }
 
 void generateStatement(ASTNode * statement, FILE *f)
@@ -42,5 +84,5 @@ void generateFunction(ASTNode * function, FILE *f)
 
 void generateAssembly(ASTNode * root, FILE *f)
 {
-	//generateFunction(root->program.children, f);
+	generateFunction(root->program.children, f);
 }

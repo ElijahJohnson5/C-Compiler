@@ -5,6 +5,9 @@
 #include "token.h"
 #include "lexer.h"
 
+/**
+* Read file to string without spaces
+*/
 char * readFileToString(FILE * f)
 {
 	char *string;
@@ -29,11 +32,15 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 	char *value;
 	int i = 0;
 	*tokenCount = 0;
+	//Arbitrary sized current buffer
 	char *current = calloc(200, sizeof(char));
 
 	while (*fileString) {
+		//Build up a string of current chars
 		current[i] = *fileString++;
 		i++;
+		//Check if it is a token
+		//If it is add the token to the list and lear the current string
 		if ((tokenType = isToken(current)) != -1) {
 			head->token.type = tokenType;
 			head->token.value.token = *current;
@@ -47,6 +54,8 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 			continue;
 		}
 
+		//Check if it is a keyword, if it is add it to the list
+		//and clear current
 		if ((value = isKeyword(current)) != NULL) {
 			head->token.type = KEYWORD;
 			head->token.value.keyword = malloc(strlen(value) + 1 * sizeof(char));
@@ -61,6 +70,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 			continue;
 		}
 
+		//Check if it is a int literal and the next char is a token
 		if ((tokenType = isLiteral(current)) != -1 && isToken(fileString) != -1) {
 			head->token.type = INT_LITERAL;
 			head->token.value.intLiteral = tokenType;
@@ -74,8 +84,10 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 			continue;
 		}
 
+		//If the next char is a token then we have an identifier
 		if (isToken(fileString) != -1) {
 			head->token.type = IDENTIFIER;
+			//Copy string in
 			head->token.value.identifier = malloc(strlen(current) + 1 * sizeof(char));
 			strncpy(head->token.value.identifier, current, strlen(current) + 1);
 			(*tokenCount)++;
@@ -92,6 +104,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 	return ret;
 }
 
+//Remove spaces from a string
 void removeSpaces(char * source)
 {
 	char* i = source;
