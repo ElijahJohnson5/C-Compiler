@@ -96,34 +96,124 @@ ASTNode * parseStatement(TokenList** tokens)
 
 ASTNode * parseExpr(TokenList ** tokens)
 {
+	int termCount = 0, currentSize = 1;
 	ASTNode *expr = malloc(sizeof(ASTNode));
+	expr->expression.term = malloc(sizeof(ASTNode *));
+	expr->expression.op = NULL;
 	
-	Token token = (*tokens)->token;
-	*tokens = (*tokens)->next;
-	if (token.type == INT_LITERAL) {
-		expr->value = token.value.intLiteral;
-		expr->type = CONSTANT_EXPRESSION;
-		return expr;
+	expr->expression.term[termCount] = parseTerm(tokens);
+	termCount++;
+	Token next = (*tokens)->token;
+
+	while (next.type == ADDITION || next.type == MINUS) {
+		(*tokens) = (*tokens)->next;
+		if (currentSize == termCount) {
+			currentSize = termCount + 1;
+			expr->expression.term = realloc(expr->expression.term, sizeof(ASTNode *) * currentSize);
+			expr->expression.op = realloc(expr->expression.op, sizeof(char) * termCount);
+		}
+		expr->expression.term[termCount] = parseTerm(tokens);
+		expr->expression.op[termCount - 1] = next.value.token;
+		termCount++;
+		next = (*tokens)->token;
+	}
+	expr->expression.termCount = termCount;
+	return expr;
+}
+
+ASTNode * parseTerm(TokenList ** tokens)
+{
+	int factorCount = 0, currentSize = 1;
+	ASTNode *term = malloc(sizeof(ASTNode));
+	term->term.factor = malloc(sizeof(ASTNode *));
+	term->term.op = NULL;
+
+	term->term.factor[factorCount] = parseFactor(tokens);
+	factorCount++;
+	Token next = (*tokens)->token;
+
+	while (next.type == MULTIPLICATION || next.type == DIVISION) {
+		(*tokens) = (*tokens)->next;
+		if (currentSize == factorCount) {
+			currentSize = factorCount + 1;
+			term->term.factor = realloc(term->term.factor, sizeof(ASTNode *) * currentSize);
+			term->term.op = realloc(term->term.op, sizeof(char) * factorCount);
+		}
+		term->term.factor[factorCount] = parseFactor(tokens);
+		term->term.op[factorCount - 1] = next.value.token;
+		factorCount++;
+		next = (*tokens)->token;
+	}
+	term->term.factorCount = factorCount;
+	return term;
+}
+
+ASTNode * parseFactor(TokenList ** tokens)
+{
+	ASTNode *factor = malloc(sizeof(ASTNode));
+	Token next = (*tokens)->token;
+	(*tokens) = (*tokens)->next;
+	if (next.type == OPEN_PAREN) {
+		//"(" <exp> ")"
+		factor->factor.expression = parseExpr(tokens);
+		next = (*tokens)->token;
+		(*tokens) = (*tokens)->next;
+		if (next.type != CLOSE_PAREN) {
+			return NULL;
+		}
+		return factor;
+	}
+	else if (isUnOp(next)) {
+		ASTNode *factor = malloc(sizeof(ASTNode));
+		factor->type = UNARY_OPERATOR;
+		factor->factor.factor.unaryOp = next.value.token;
+		factor->factor.factor.factor = parseFactor(tokens);
+		return factor;
+	}
+	else if (next.type == INT_LITERAL) {
+		factor->type = CONSTANT_INT;
+		factor->value = next.value.intLiteral;
+		return factor;
+	}
+
+	return NULL;
+}
+
+
+
+void printFactor(ASTNode * factor)
+{
+	if (factor->type == CONSTANT_INT) {
+		printf("Int<%d>", factor->value);
+	}
+	else if (factor->type == UNARY_OPERATOR) {
+		printf("%c", factor->factor.factor.unaryOp);
+		printFactor(factor->factor.factor.factor);
 	}
 	else {
-		expr->type = UNARY_OPERATOR;
-		expr->expression.unaryOp = token.value.token;
-		expr->expression.expression = parseExpr(tokens);
-		return expr;
+		printf("(");
+		printExpr(factor->factor.expression);
+		printf(")");
 	}
-	
-	free(expr);
-	return NULL;
+}
+
+void printTerm(ASTNode * term)
+{
+	for (int i = 0; i < term->term.factorCount; i++) {
+		if (term->term.op != NULL && i - 1 >= 0) {
+			printf("%c", term->term.op[i - 1]);
+		}
+		printFactor(term->term.factor[i]);
+	}
 }
 
 void printExpr(ASTNode * expr)
 {
-	if (expr->type == CONSTANT_EXPRESSION) {
-		printf("Int<%d>\n", expr->value);
-	}
-	else {
-		printf("%c", expr->expression.unaryOp);
-		printExpr(expr->expression.expression);
+	for (int i = 0; i < expr->expression.termCount; i++) {
+		if (expr->expression.op != NULL && i - 1 >= 0) {
+			printf("%c", expr->expression.op[i - 1]);
+		}
+		printTerm(expr->expression.term[i]);
 	}
 }
 

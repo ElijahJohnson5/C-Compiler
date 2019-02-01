@@ -6,12 +6,12 @@
 
 void generateExpr(ASTNode * expr, FILE *f)
 {
-	if (expr->type == CONSTANT_EXPRESSION) {
+	/*if (expr->type == EXPRESSION) {
 		fprintf(f, "movl  $%d,%%eax\n", expr->value);
 	}
 	else {
-		generateExpr(expr->expression.expression, f);
-		switch (expr->expression.unaryOp) {
+		generateExpr(expr->unaryExpression.expression, f);
+		switch (expr->unaryExpression.unaryOp) {
 		case '-':
 			fprintf(f, "neg  %%eax\n");
 			break;
@@ -24,7 +24,7 @@ void generateExpr(ASTNode * expr, FILE *f)
 			fprintf(f, "not  %%eax\n");
 			break;
 		}
-	}
+	}*/
 }
 
 void generateStatement(ASTNode * statement, FILE *f)
@@ -42,5 +42,5 @@ void generateFunction(ASTNode * function, FILE *f)
 
 void generateAssembly(ASTNode * root, FILE *f)
 {
-	generateFunction(root->program.children, f);
+	//generateFunction(root->program.children, f);
 }

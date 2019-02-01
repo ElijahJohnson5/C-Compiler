@@ -27,9 +27,6 @@
     <ClCompile Include="tests\bitwise.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\generate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,6 +40,36 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\token.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\nested_ops_2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\add.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\associativity.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\divide.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\mult.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\parens.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\precedence.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\sub_neg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\unop_add.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\unop_parens.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -24,6 +24,9 @@ const char * getTokenType(TokenType type)
 	case KEYWORD: return "Keyword";
 	case INT_LITERAL: return "Literal";
 	case IDENTIFIER: return "Identifier";
+	case MINUS: return "-";
+	case BITWISE_COMPLIMENT: return "~";
+	case LOGICAL_NEGATION: return "!";
 	}
 	return NULL;
 }
@@ -42,11 +45,17 @@ int isToken(char * toCheck)
 	case ';':
 		return SEMICOLON;
 	case '-':
-		return NEGATION;
+		return MINUS;
 	case '~':
 		return BITWISE_COMPLIMENT;
 	case '!':
 		return LOGICAL_NEGATION;
+	case '+':
+		return ADDITION;
+	case '*':
+		return MULTIPLICATION;
+	case '/':
+		return DIVISION;
 	}
 	return -1;
 }
@@ -68,4 +77,16 @@ int isLiteral(char * toCheck)
 		if (isdigit(*s++) == 0) return -1;
 	}
 	return atoi(toCheck);
+}
+
+int isUnOp(Token next)
+{
+	switch (next.type) {
+	case BITWISE_COMPLIMENT:
+	case LOGICAL_NEGATION:
+	case MINUS:
+		return 1;
+	default:
+		return 0;
+	}
 }
