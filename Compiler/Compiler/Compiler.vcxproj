@@ -117,22 +117,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="generate.c" />
-    <ClCompile Include="lexer.c" />
-    <ClCompile Include="parser.c" />
+    <ClCompile Include="src\generate.c" />
+    <ClCompile Include="src\lexer.c" />
+    <ClCompile Include="src\parser.c" />
+    <ClCompile Include="tests\bitwise.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="tests\nested_op.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="tests\return_2.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="tests\return_2000.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="token.c" />
+    <ClCompile Include="src\token.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="generate.h" />
-    <ClInclude Include="lexer.h" />
-    <ClInclude Include="parser.h" />
-    <ClInclude Include="token.h" />
+    <ClInclude Include="src\generate.h" />
+    <ClInclude Include="src\lexer.h" />
+    <ClInclude Include="src\parser.h" />
+    <ClInclude Include="src\token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -15,36 +15,48 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lexer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="token.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="parser.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="generate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tests\return_2.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="tests\return_2000.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\nested_op.c">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\bitwise.c">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\generate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lexer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\token.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="token.h">
+    <ClInclude Include="src\generate.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="lexer.h">
+    <ClInclude Include="src\lexer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="parser.h">
+    <ClInclude Include="src\parser.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="generate.h">
+    <ClInclude Include="src\token.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
