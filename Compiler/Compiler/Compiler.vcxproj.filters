@@ -21,17 +21,17 @@
     <ClCompile Include="token.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="return_2.c">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="return_2000.c">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="generate.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\return_2.c">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\return_2000.c">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
