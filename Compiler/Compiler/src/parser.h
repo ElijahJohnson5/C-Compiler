@@ -24,9 +24,8 @@ typedef struct ASTNode {
 			//Multiplication or divison
 			struct ASTNode *factor;
 			struct {
-				int factorCount;
-				struct ASTNode **rightFactor;
-				char *op;
+				struct ASTNode *rightTerm;
+				char op;
 			};
 
 		} term;
@@ -34,9 +33,8 @@ typedef struct ASTNode {
 			//Addition or subtraction
 			struct ASTNode *term;
 			struct {
-				int termCount;
-				struct ASTNode **rightTerm;
-				char *op;
+				struct ASTNode *rightExp;
+				char op;
 			};
 		} expression;
 		struct {

@@ -4,12 +4,12 @@
 #include "generate.h"
 #include "parser.h"
 
-int onStack = 0;
+int eaxPushed = 0;
 
 void generateFactor(ASTNode * factor, FILE * f)
 {
 	if (factor->type == CONSTANT_INT) {
-		fprintf(f, "movl  $%d,%%eax\n", factor->value);
+		fprintf(f, "movl  $%d, %%eax\n", factor->value);
 	}
 	else if (factor->type == UNARY_OPERATOR) {
 		generateFactor(factor->factor.factor.factor, f);
@@ -27,31 +27,48 @@ void generateFactor(ASTNode * factor, FILE * f)
 			break;
 		}
 	}
-	else {
-
+	else if (factor->type == EXPRESSION) {
+		generateExpr(factor->factor.expression, f);
 	}
 }
 
 void generateTerm(ASTNode * term, FILE * f)
 {
 	if (term->type == BINARY_OP) {
-		for (int i = 0; i < term->term.factorCount; i++) {
-			generateFactor(term->term.rightFactor[i], f);
-			//Do something with op
-		}
+		generateTerm(term->term.rightTerm, f);
+		//Do Something with operator
+		fprintf(f, "push  %%eax\n");
 	}
 	generateFactor(term->term.factor, f);
+
+	switch (term->term.op) {
+	case '*':
+		fprintf(f, "pop  %%ecx\n");
+		fprintf(f, "imul  %%ecx, %%eax\n");
+		break;
+	case '/':
+		break;
+	}
 }
 
 void generateExpr(ASTNode * expr, FILE *f)
 {
+
 	if (expr->type == BINARY_OP) {
-		for (int i = 0; i < expr->expression.termCount; i++) {
-			generateTerm(expr->expression.rightTerm[i], f);
-			//Do something with op
-		}
+		generateExpr(expr->expression.rightExp, f);
+		//Do something with operator here
+		fprintf(f, "push  %%eax\n");
 	}
 	generateTerm(expr->expression.term, f);
+	
+	switch (expr->expression.op) {
+	case '+':
+		fprintf(f, "pop  %%ecx\n");
+		fprintf(f, "addl  %%ecx, %%eax\n");
+		break;
+	case '-':
+		fprintf(f, "subtract");
+	}
 }
 
 void generateStatement(ASTNode * statement, FILE *f)

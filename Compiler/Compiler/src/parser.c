@@ -96,30 +96,18 @@ ASTNode * parseStatement(TokenList** tokens)
 
 ASTNode * parseExpr(TokenList ** tokens)
 {
-	int termCount = 0, currentSize = 0;
 	ASTNode *expr = malloc(sizeof(ASTNode));
 	expr->type = EXPRESSION;
-	expr->expression.rightTerm = NULL;
-	expr->expression.op = NULL;
+	expr->expression.rightExp = NULL;
 	expr->expression.term = parseTerm(tokens);
 	Token next = (*tokens)->token;
 
-	while (next.type == ADDITION || next.type == MINUS) {
-		if (expr->expression.rightTerm == NULL || termCount == currentSize) {
-			currentSize++;
-			expr->expression.rightTerm = realloc(expr->expression.rightTerm, sizeof(ASTNode *) * currentSize);
-			expr->expression.op = realloc(expr->expression.op, sizeof(char) * currentSize);
-		}
+	if (next.type == ADDITION || next.type == MINUS) {
 		(*tokens) = (*tokens)->next;
 		expr->type = BINARY_OP;
 		
-		expr->expression.rightTerm[termCount] = parseTerm(tokens);
-		expr->expression.op[termCount] = next.value.token;
-		termCount++;
-		next = (*tokens)->token;
-	}
-	if (expr->type == BINARY_OP) {
-		expr->expression.termCount = termCount;
+		expr->expression.op = next.value.token;
+		expr->expression.rightExp = parseExpr(tokens);
 	}
 
 	return expr;
@@ -130,29 +118,17 @@ ASTNode * parseTerm(TokenList ** tokens)
 	int factorCount = 0, currentSize = 0;
 	ASTNode *term = malloc(sizeof(ASTNode));
 	term->type = TERM;
-	term->term.rightFactor = NULL;
-	term->term.op = NULL;
+	term->term.rightTerm = NULL;
 	term->term.factor = parseFactor(tokens);
 	Token next = (*tokens)->token;
 
-	while (next.type == MULTIPLICATION || next.type == DIVISION) {
-		if (term->term.rightFactor == NULL || factorCount >= currentSize) {
-			currentSize++;
-			term->term.rightFactor = realloc(term->term.rightFactor, sizeof(ASTNode *) * currentSize);
-			term->term.op = realloc(term->term.op, sizeof(char) * currentSize);
-		}
+	if (next.type == MULTIPLICATION || next.type == DIVISION) {
+		//<factor> {('*') | ('/') <factor>}
 		(*tokens) = (*tokens)->next;
 		term->type = BINARY_OP;
-		term->term.rightFactor[factorCount] = parseFactor(tokens);
-		term->term.op[factorCount] = next.value.token;
-		factorCount++;
-		next = (*tokens)->token;
+		term->term.op = next.value.token;
+		term->term.rightTerm = parseTerm(tokens);
 	}
-
-	if (term->type == BINARY_OP) {
-		term->term.factorCount = factorCount;
-	}
-
 	return term;
 }
 
@@ -173,6 +149,7 @@ ASTNode * parseFactor(TokenList ** tokens)
 		return factor;
 	}
 	else if (isUnOp(next)) {
+		//<unary_op> <factor>
 		ASTNode *factor = malloc(sizeof(ASTNode));
 		factor->type = UNARY_OPERATOR;
 		factor->factor.factor.unaryOp = next.value.token;
@@ -180,6 +157,7 @@ ASTNode * parseFactor(TokenList ** tokens)
 		return factor;
 	}
 	else if (next.type == INT_LITERAL) {
+		//<int>
 		factor->type = CONSTANT_INT;
 		factor->value = next.value.intLiteral;
 		return factor;
@@ -213,10 +191,8 @@ void printTerm(ASTNode * term)
 	} 
 	else if (term->type == BINARY_OP) {
 		printFactor(term->term.factor);
-		for (int i = 0; i < term->term.factorCount; i++) {
-			printf("%c", term->term.op[i]);
-			printFactor(term->term.rightFactor[i]);
-		}
+		printf("%c", term->term.op);
+		printTerm(term->term.rightTerm);
 	}
 }
 
@@ -227,10 +203,8 @@ void printExpr(ASTNode * expr)
 	}
 	else if (expr->type == BINARY_OP) {
 		printTerm(expr->expression.term);
-		for (int i = 0; i < expr->expression.termCount; i++) {
-			printf("%c", expr->expression.op[i]);
-			printTerm(expr->expression.rightTerm[i]);
-		}
+		printf("%c", expr->expression.op);
+		printExpr(expr->expression.rightExp);
 	}
 }
 
