@@ -36,7 +36,6 @@ void generateTerm(ASTNode * term, FILE * f)
 {
 	if (term->type == BINARY_OP) {
 		generateTerm(term->term.rightTerm, f);
-		//Do Something with operator
 		fprintf(f, "push  %%eax\n");
 	}
 	generateFactor(term->term.factor, f);
@@ -47,34 +46,37 @@ void generateTerm(ASTNode * term, FILE * f)
 		fprintf(f, "imul  %%ecx, %%eax\n");
 		break;
 	case '/':
+		fprintf(f, "pop  %%ecx\n");
+		fprintf(f, "xor  %%edx, %%edx\n");
+		fprintf(f, "idivl  %%ecx\n");
 		break;
 	}
 }
 
 void generateExpr(ASTNode * expr, FILE *f)
 {
-
 	if (expr->type == BINARY_OP) {
-		generateExpr(expr->expression.rightExp, f);
-		//Do something with operator here
+		generateExpr(expr->additiveExp.rightAdditiveExp, f);
 		fprintf(f, "push  %%eax\n");
 	}
-	generateTerm(expr->expression.term, f);
+	generateTerm(expr->additiveExp.term, f);
 	
-	switch (expr->expression.op) {
+	switch (expr->additiveExp.op) {
 	case '+':
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "addl  %%ecx, %%eax\n");
 		break;
 	case '-':
-		fprintf(f, "subtract");
+		fprintf(f, "pop  %%ecx\n");
+		fprintf(f, "subl  %%eax, %%ecx\n");
+		fprintf(f, "movl  %%ecx, %%eax\n");
 	}
 }
 
 void generateStatement(ASTNode * statement, FILE *f)
 {
 	generateExpr(statement->statement.expression, f);
-	fprintf(f, "ret\n");
+	fprintf(f, "ret  \n");
 }
 
 void generateFunction(ASTNode * function, FILE *f)

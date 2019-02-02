@@ -72,6 +72,12 @@
     <ClCompile Include="tests\unop_parens.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\and_false.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\ge_false.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\generate.h">

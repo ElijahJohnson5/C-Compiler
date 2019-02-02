@@ -33,8 +33,39 @@ typedef struct ASTNode {
 			//Addition or subtraction
 			struct ASTNode *term;
 			struct {
-				struct ASTNode *rightExp;
+				struct ASTNode *rightAdditiveExp;
 				char op;
+			};
+		} additiveExp;
+		struct {
+			//Addition or subtraction
+			struct ASTNode *additiveExp;
+			struct {
+				struct ASTNode *rightRelationalExp;
+				char op[3];
+			};
+		} relationalExp;
+		struct {
+			//Addition or subtraction
+			struct ASTNode *relationalExp;
+			struct {
+				struct ASTNode *rightEqualityExp;
+				char op[3];
+			};
+		} equalityExp;
+		struct {
+			//Addition or subtraction
+			struct ASTNode *equalityExp;
+			struct {
+				struct ASTNode *rightLogicalAndExp;
+				char op[3];
+			};
+		} logicalAndExp;
+		struct {
+			struct ASTNode *logicalAndExp;
+			struct {
+				struct ASTNode *rightExp;
+				char op[3];
 			};
 		} expression;
 		struct {
@@ -56,11 +87,19 @@ ASTNode *parseProgram(struct TokenList** tokens);
 ASTNode *parseFunction(struct TokenList** tokens);
 ASTNode *parseStatement(struct TokenList** tokens);
 ASTNode *parseExpr(struct TokenList** tokens);
+ASTNode *parseEqualityExpr(struct TokenList** tokens);
+ASTNode *parseLogicalAndExpr(struct TokenList** tokens);
+ASTNode *parseRelationalExpr(struct TokenList** tokens);
+ASTNode *parseAdditiveExpr(struct TokenList** tokens);
 ASTNode *parseTerm(struct TokenList** tokens);
 ASTNode *parseFactor(struct TokenList** tokens);
 
 void printFactor(ASTNode *factor);
 void printTerm(ASTNode *term);
+void printEqualityExpr(ASTNode *eqExpr);
+void printLogicalAndExpr(ASTNode *logAndExpr);
+void printRelationalExpr(ASTNode *relaExpr);
+void printAdditiveExpr(ASTNode *addExpr);
 void printExpr(ASTNode *expr);
 void printStatement(ASTNode* statement);
 void printFunction(ASTNode* function);

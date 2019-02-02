@@ -13,6 +13,15 @@ TokenList * createTokenList()
 	return newToken;
 }
 
+void printTokenList(TokenList * list)
+{
+	TokenList* temp = list;
+	while (temp) {
+		printf("{%s}\n", getTokenType(temp->token.type));
+		temp = temp->next;
+	}
+}
+
 const char * getTokenType(TokenType type)
 {
 	switch (type) {
@@ -27,8 +36,40 @@ const char * getTokenType(TokenType type)
 	case MINUS: return "-";
 	case BITWISE_COMPLIMENT: return "~";
 	case LOGICAL_NEGATION: return "!";
+	case LOGICAL_AND: return "&&";
+	case LOGICAL_OR: return "||";
+	case LESS_THAN_EQUAL_TO: return "<=";
+	case EQUAL_TO: return "==";
+	case GREATER_THAN_EQUAL_TO: return ">=";
+	case NOT_EQUAL_TO: return "!=";
+	case LESS_THAN: return "<";
+	case GREATER_THAN: return ">";
 	}
 	return NULL;
+}
+
+int isTwoCharToken(char *toCheck) 
+{
+	if (!strcmp(toCheck, "&&")) {
+		return LOGICAL_AND;
+	}
+	else if (!strcmp(toCheck, "||")) {
+		return LOGICAL_OR;
+	}
+	else if (!strcmp(toCheck, "<=")) {
+		return LESS_THAN_EQUAL_TO;
+	}
+	else if (!strcmp(toCheck, "==")) {
+		return EQUAL_TO;
+	}
+	else if (!strcmp(toCheck, ">=")) {
+		return GREATER_THAN_EQUAL_TO;
+	}
+	else if (!strcmp(toCheck, "!=")) {
+		return NOT_EQUAL_TO;
+	}
+
+	return -1;
 }
 
 int isToken(char * toCheck)
@@ -56,7 +97,12 @@ int isToken(char * toCheck)
 		return MULTIPLICATION;
 	case '/':
 		return DIVISION;
+	case '<' :
+		return LESS_THAN;
+	case '>':
+		return GREATER_THAN;
 	}
+
 	return -1;
 }
 

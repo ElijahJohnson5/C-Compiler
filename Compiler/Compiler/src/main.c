@@ -18,10 +18,11 @@ int main(int argc, char **argv) {
 		FILE *f = fopen(argv[1], "r");
 		writeTo = fopen(file, "w");
 		TokenList* tokenList = tokenizeFile(readFileToString(f), &tokenCount);
+		printTokenList(tokenList);
 		ASTNode *root = parseProgram(&tokenList);
 		prettyPrintAST(root);
-		generateAssembly(root, writeTo);
-		fclose(writeTo);
+		//generateAssembly(root, writeTo);
+		//fclose(writeTo);
 		//char buf[512];
 		//sprintf(buf, "cmd.exe /c \"gcc -m32 %s -o out\"", file);
 		//system(buf);

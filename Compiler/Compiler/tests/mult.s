@@ -17,4 +17,4 @@ push  %eax
 movl  $2, %eax
 pop  %ecx
 imul  %ecx, %eax
-ret
+ret  
