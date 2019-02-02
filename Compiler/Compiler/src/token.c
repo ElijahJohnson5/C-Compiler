@@ -55,6 +55,12 @@ const char * getTokenType(TokenType type)
 	case ADDITION: return "+";
 	case MULTIPLICATION: return "*";
 	case DIVISION: return "/";
+	case MODULUS: return "%";
+	case BITWISE_AND: return "&";
+	case BITWISE_OR: return "|";
+	case BITWISE_XOR: return "^";
+	case BITWISE_SHIFT_LEFT: return "<<";
+	case BITWISE_SHIFT_RIGHT: return ">>";
 	}
 	return NULL;
 }
@@ -78,6 +84,12 @@ int isTwoCharToken(char *toCheck)
 	}
 	else if (!strcmp(toCheck, "!=")) {
 		return NOT_EQUAL_TO;
+	}
+	else if (!strcmp(toCheck, "<<")) {
+		return BITWISE_SHIFT_LEFT;
+	}
+	else if (!strcmp(toCheck, ">>")) {
+		return BITWISE_SHIFT_RIGHT;
 	}
 
 	return -1;
@@ -112,6 +124,14 @@ int isToken(char * toCheck)
 		return LESS_THAN;
 	case '>':
 		return GREATER_THAN;
+	case '%':
+		return MODULUS;
+	case '&':
+		return BITWISE_AND;
+	case '|':
+		return BITWISE_OR;
+	case '^':
+		return BITWISE_XOR;
 	}
 
 	return -1;

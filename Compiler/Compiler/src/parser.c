@@ -113,7 +113,7 @@ ASTNode * parseLogicalAndExpr(TokenList ** tokens)
 	ASTNode *logicalAndExpr = malloc(sizeof(ASTNode));
 	logicalAndExpr->type = EXPRESSION;
 	logicalAndExpr->logicalAndExp.rightLogicalAndExp = NULL;
-	logicalAndExpr->logicalAndExp.equalityExp = parseEqualityExpr(tokens);
+	logicalAndExpr->logicalAndExp.bitwiseOrExp = parseBitwiseOrExpr(tokens);
 	Token next = (*tokens)->token;
 
 	if (next.type == LOGICAL_AND) {
@@ -126,6 +126,60 @@ ASTNode * parseLogicalAndExpr(TokenList ** tokens)
 	}
 
 	return logicalAndExpr;
+}
+
+ASTNode * parseBitwiseOrExpr(TokenList ** tokens)
+{
+	ASTNode *orExpr = malloc(sizeof(ASTNode));
+	orExpr->type = EXPRESSION;
+	orExpr->bitwiseOrExp.rightBitwiseOrExp = NULL;
+	orExpr->bitwiseOrExp.bitwiseXorExp = parseBitwiseXorExpr(tokens);
+	Token next = (*tokens)->token;
+
+	if (next.type == BITWISE_OR) {
+		(*tokens) = (*tokens)->next;
+		orExpr->type = BINARY_OP;
+		orExpr->bitwiseOrExp.op = next.value.token;
+		orExpr->bitwiseOrExp.rightBitwiseOrExp = parseBitwiseOrExpr(tokens);
+	}
+
+	return orExpr;
+}
+
+ASTNode * parseBitwiseXorExpr(TokenList ** tokens)
+{
+	ASTNode *xorExpr = malloc(sizeof(ASTNode));
+	xorExpr->type = EXPRESSION;
+	xorExpr->bitwiseXorExp.rightBitwiseXorExp = NULL;
+	xorExpr->bitwiseXorExp.bitwiseAndExp = parseBitwiseAndExpr(tokens);
+	Token next = (*tokens)->token;
+
+	if (next.type == BITWISE_XOR) {
+		(*tokens) = (*tokens)->next;
+		xorExpr->type = BINARY_OP;
+		xorExpr->bitwiseXorExp.op = next.value.token;
+		xorExpr->bitwiseXorExp.rightBitwiseXorExp = parseBitwiseXorExpr(tokens);
+	}
+
+	return xorExpr;
+}
+
+ASTNode * parseBitwiseAndExpr(TokenList ** tokens)
+{
+	ASTNode *andExpr = malloc(sizeof(ASTNode));
+	andExpr->type = EXPRESSION;
+	andExpr->bitwiseAndExp.rightBitwiseAndExp = NULL;
+	andExpr->bitwiseAndExp.equalityExp = parseEqualityExpr(tokens);
+	Token next = (*tokens)->token;
+
+	if (next.type == BITWISE_AND) {
+		(*tokens) = (*tokens)->next;
+		andExpr->type = BINARY_OP;
+		andExpr->bitwiseAndExp.op = next.value.token;
+		andExpr->bitwiseAndExp.rightBitwiseAndExp = parseBitwiseAndExpr(tokens);
+	}
+
+	return andExpr;
 }
 
 ASTNode * parseEqualityExpr(TokenList ** tokens)
@@ -153,7 +207,7 @@ ASTNode * parseRelationalExpr(TokenList ** tokens)
 	ASTNode *relationalExpr = malloc(sizeof(ASTNode));
 	relationalExpr->type = EXPRESSION;
 	relationalExpr->relationalExp.rightRelationalExp = NULL;
-	relationalExpr->relationalExp.additiveExp = parseAdditiveExpr(tokens);
+	relationalExpr->relationalExp.bitwiseShiftExp = parseBitwiseShiftExpr(tokens);
 	Token next = (*tokens)->token;
 
 	if (next.type == GREATER_THAN || next.type == GREATER_THAN_EQUAL_TO || next.type == LESS_THAN || next.type == LESS_THAN_EQUAL_TO) {
@@ -166,6 +220,26 @@ ASTNode * parseRelationalExpr(TokenList ** tokens)
 	}
 
 	return relationalExpr;
+}
+
+ASTNode * parseBitwiseShiftExpr(TokenList ** tokens)
+{
+	ASTNode *shiftExpr = malloc(sizeof(ASTNode));
+	shiftExpr->type = EXPRESSION;
+	shiftExpr->bitwiseShiftExp.rightBitwiseShiftExp = NULL;
+	shiftExpr->bitwiseShiftExp.additiveExp = parseAdditiveExpr(tokens);
+	Token next = (*tokens)->token;
+
+	if (next.type == BITWISE_SHIFT_RIGHT || next.type == BITWISE_SHIFT_LEFT) {
+		(*tokens) = (*tokens)->next;
+		shiftExpr->type = BINARY_OP;
+		shiftExpr->relationalExp.op[0] = next.value.leftToken;
+		shiftExpr->relationalExp.op[1] = next.value.rightToken;
+		shiftExpr->relationalExp.op[2] = 0;
+		shiftExpr->relationalExp.rightRelationalExp = parseBitwiseShiftExpr(tokens);
+	}
+
+	return shiftExpr;
 }
 
 ASTNode * parseAdditiveExpr(TokenList ** tokens)
@@ -195,8 +269,8 @@ ASTNode * parseTerm(TokenList ** tokens)
 	term->term.factor = parseFactor(tokens);
 	Token next = (*tokens)->token;
 
-	if (next.type == MULTIPLICATION || next.type == DIVISION) {
-		//<factor> {('*') | ('/') <factor>}
+	if (next.type == MULTIPLICATION || next.type == DIVISION || next.type == MODULUS) {
+		//<factor> {('*') | ('/') | ('%') <factor>}
 		(*tokens) = (*tokens)->next;
 		term->type = BINARY_OP;
 		term->term.op = next.value.token;
@@ -241,80 +315,24 @@ ASTNode * parseFactor(TokenList ** tokens)
 
 
 
-void printFactor(ASTNode * factor)
+void prettyPrintAST(ASTNode * root)
 {
-	if (factor->type == CONSTANT_INT) {
-		printf("Int<%d>", factor->value);
-	}
-	else if (factor->type == UNARY_OPERATOR) {
-		printf(" %c ", factor->factor.unaryOp);
-		printFactor(factor->factor.factor);
-	}
-	else {
-		printf("(");
-		printExpr(factor->factor.expression);
-		printf(")");
-	}
+	printFunction(root->program.children);
 }
 
-void printTerm(ASTNode * term)
+void printFunction(ASTNode * function)
 {
-	if (term->type == TERM) {
-		printFactor(term->term.factor);
-	} 
-	else if (term->type == BINARY_OP) {
-		printFactor(term->term.factor);
-		printf(" %c ", term->term.op);
-		printTerm(term->term.rightTerm);
-	}
+	printf("FUN %s %s:\n", getReturnType(function->function.returnType), function->function.name);
+	printf("\t params: ()\n");
+	printf("\t body:\n");
+	printStatement(function->function.body);
 }
 
-void printAdditiveExpr(ASTNode * addExpr)
+void printStatement(ASTNode * statement)
 {
-	if (addExpr->type == EXPRESSION) {
-		printTerm(addExpr->additiveExp.term);
-	}
-	else if (addExpr->type == BINARY_OP) {
-		printTerm(addExpr->additiveExp.term);
-		printf(" %c ", addExpr->additiveExp.op);
-		printAdditiveExpr(addExpr->additiveExp.rightAdditiveExp);
-	}
-}
-
-void printRelationalExpr(ASTNode * relaExpr)
-{
-	if (relaExpr->type == EXPRESSION) {
-		printAdditiveExpr(relaExpr->relationalExp.additiveExp);
-	}
-	else if (relaExpr->type == BINARY_OP) {
-		printAdditiveExpr(relaExpr->relationalExp.additiveExp);
-		printf(" %s ", relaExpr->relationalExp.op);
-		printRelationalExpr(relaExpr->relationalExp.rightRelationalExp);
-	}
-}
-
-void printEqualityExpr(ASTNode * eqExpr)
-{
-	if (eqExpr->type == EXPRESSION) {
-		printRelationalExpr(eqExpr->equalityExp.relationalExp);
-	}
-	else if (eqExpr->type == BINARY_OP) {
-		printRelationalExpr(eqExpr->equalityExp.relationalExp);
-		printf(" %s ", eqExpr->equalityExp.op);
-		printEqualityExpr(eqExpr->equalityExp.rightEqualityExp);
-	}
-}
-
-void printLogicalAndExpr(ASTNode * logAndExpr)
-{
-	if (logAndExpr->type == EXPRESSION) {
-		printEqualityExpr(logAndExpr->logicalAndExp.equalityExp);
-	}
-	else if (logAndExpr->type == BINARY_OP) {
-		printEqualityExpr(logAndExpr->logicalAndExp.equalityExp);
-		printf(" %s ", logAndExpr->logicalAndExp.op);
-		printLogicalAndExpr(logAndExpr->logicalAndExp.rightLogicalAndExp);
-	}
+	printf("\t  RETURN ");
+	printExpr(statement->statement.expression);
+	printf("\n");
 }
 
 void printExpr(ASTNode * expr)
@@ -330,22 +348,126 @@ void printExpr(ASTNode * expr)
 
 }
 
-void printStatement(ASTNode * statement)
+void printLogicalAndExpr(ASTNode * logAndExpr)
 {
-	printf("\t  RETURN ");
-	printExpr(statement->statement.expression);
-	printf("\n");
+	if (logAndExpr->type == EXPRESSION) {
+		printBitwiseOrExpr(logAndExpr->logicalAndExp.bitwiseOrExp);
+	}
+	else if (logAndExpr->type == BINARY_OP) {
+		printBitwiseOrExpr(logAndExpr->logicalAndExp.bitwiseOrExp);
+		printf(" %s ", logAndExpr->logicalAndExp.op);
+		printLogicalAndExpr(logAndExpr->logicalAndExp.rightLogicalAndExp);
+	}
 }
 
-void printFunction(ASTNode * function)
+void printBitwiseOrExpr(ASTNode * bitwiseOrExpr)
 {
-	printf("FUN %s %s:\n", getReturnType(function->function.returnType), function->function.name);
-	printf("\t params: ()\n");
-	printf("\t body:\n");
-	printStatement(function->function.body);
+	if (bitwiseOrExpr->type == EXPRESSION) {
+		printBitwiseXorExpr(bitwiseOrExpr->bitwiseOrExp.bitwiseXorExp);
+	}
+	else if (bitwiseOrExpr->type == BINARY_OP) {
+		printBitwiseXorExpr(bitwiseOrExpr->bitwiseOrExp.bitwiseXorExp);
+		printf(" %c ", bitwiseOrExpr->bitwiseOrExp.op);
+		printBitwiseOrExpr(bitwiseOrExpr->bitwiseOrExp.rightBitwiseOrExp);
+	}
 }
 
-void prettyPrintAST(ASTNode * root)
+void printBitwiseXorExpr(ASTNode * bitwiseXorExpr)
 {
-	printFunction(root->program.children);
+	if (bitwiseXorExpr->type == EXPRESSION) {
+		printBitwiseAndExpr(bitwiseXorExpr->bitwiseXorExp.bitwiseAndExp);
+	}
+	else if (bitwiseXorExpr->type == BINARY_OP) {
+		printBitwiseAndExpr(bitwiseXorExpr->bitwiseXorExp.bitwiseAndExp);
+		printf(" %c ", bitwiseXorExpr->bitwiseXorExp.op);
+		printBitwiseXorExpr(bitwiseXorExpr->bitwiseXorExp.rightBitwiseXorExp);
+	}
+}
+
+void printBitwiseAndExpr(ASTNode * bitwiseAndExpr)
+{
+	if (bitwiseAndExpr->type == EXPRESSION) {
+		printEqualityExpr(bitwiseAndExpr->bitwiseAndExp.equalityExp);
+	}
+	else if (bitwiseAndExpr->type == BINARY_OP) {
+		printEqualityExpr(bitwiseAndExpr->bitwiseAndExp.equalityExp);
+		printf(" %c ", bitwiseAndExpr->bitwiseAndExp.op);
+		printBitwiseAndExpr(bitwiseAndExpr->bitwiseAndExp.rightBitwiseAndExp);
+	}
+}
+
+void printEqualityExpr(ASTNode * eqExpr)
+{
+	if (eqExpr->type == EXPRESSION) {
+		printRelationalExpr(eqExpr->equalityExp.relationalExp);
+	}
+	else if (eqExpr->type == BINARY_OP) {
+		printRelationalExpr(eqExpr->equalityExp.relationalExp);
+		printf(" %s ", eqExpr->equalityExp.op);
+		printEqualityExpr(eqExpr->equalityExp.rightEqualityExp);
+	}
+}
+
+void printRelationalExpr(ASTNode * relaExpr)
+{
+	if (relaExpr->type == EXPRESSION) {
+		printBitwiseShiftExpr(relaExpr->relationalExp.bitwiseShiftExp);
+	}
+	else if (relaExpr->type == BINARY_OP) {
+		printBitwiseShiftExpr(relaExpr->relationalExp.bitwiseShiftExp);
+		printf(" %s ", relaExpr->relationalExp.op);
+		printRelationalExpr(relaExpr->relationalExp.rightRelationalExp);
+	}
+}
+
+void printBitwiseShiftExpr(ASTNode * bitwiseShiftExpr)
+{
+	if (bitwiseShiftExpr->type == EXPRESSION) {
+		printAdditiveExpr(bitwiseShiftExpr->bitwiseShiftExp.additiveExp);
+	}
+	else if (bitwiseShiftExpr->type == BINARY_OP) {
+		printAdditiveExpr(bitwiseShiftExpr->bitwiseShiftExp.additiveExp);
+		printf(" %s ", bitwiseShiftExpr->bitwiseShiftExp.op);
+		printBitwiseShiftExpr(bitwiseShiftExpr->bitwiseShiftExp.rightBitwiseShiftExp);
+	}
+}
+
+void printAdditiveExpr(ASTNode * addExpr)
+{
+	if (addExpr->type == EXPRESSION) {
+		printTerm(addExpr->additiveExp.term);
+	}
+	else if (addExpr->type == BINARY_OP) {
+		printTerm(addExpr->additiveExp.term);
+		printf(" %c ", addExpr->additiveExp.op);
+		printAdditiveExpr(addExpr->additiveExp.rightAdditiveExp);
+	}
+}
+
+void printTerm(ASTNode * term)
+{
+	if (term->type == TERM) {
+		printFactor(term->term.factor);
+	}
+	else if (term->type == BINARY_OP) {
+		printFactor(term->term.factor);
+		printf(" %c ", term->term.op);
+		printTerm(term->term.rightTerm);
+	}
+}
+
+void printFactor(ASTNode * factor)
+{
+	if (factor->type == CONSTANT_INT) {
+		printf("Int<%d>", factor->value);
+	}
+	else if (factor->type == UNARY_OPERATOR) {
+		printf(" %c ", factor->factor.unaryOp);
+		printFactor(factor->factor.factor);
+	}
+	else {
+		printf("(");
+		printExpr(factor->factor.expression);
+		printf(")");
+	}
 }

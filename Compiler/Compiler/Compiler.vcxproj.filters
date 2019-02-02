@@ -117,6 +117,21 @@
     <ClCompile Include="tests\deep_nested_op.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\bitwise\modulus.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\bitwise\left_shift.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\bitwise\xor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\bitwise\and.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\bitwise\or.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\generate.h">

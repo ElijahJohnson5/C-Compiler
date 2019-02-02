@@ -43,8 +43,35 @@ void freeLogicalAndAST(ASTNode * logAndExpr)
 	if (logAndExpr->type == BINARY_OP) {
 		freeLogicalAndAST(logAndExpr->logicalAndExp.rightLogicalAndExp);
 	}
-	freeEqualityAST(logAndExpr->logicalAndExp.equalityExp);
+	freeBitwiseOrAST(logAndExpr->logicalAndExp.bitwiseOrExp);
 	free(logAndExpr);
+}
+
+void freeBitwiseOrAST(ASTNode * bitwiseOrExpr)
+{
+	if (bitwiseOrExpr->type == BINARY_OP) {
+		freeBitwiseOrAST(bitwiseOrExpr->bitwiseOrExp.rightBitwiseOrExp);
+	}
+	freeBitwiseXorAST(bitwiseOrExpr->bitwiseOrExp.bitwiseXorExp);
+	free(bitwiseOrExpr);
+}
+
+void freeBitwiseXorAST(ASTNode * bitwiseXorExpr)
+{
+	if (bitwiseXorExpr->type == BINARY_OP) {
+		freeBitwiseXorAST(bitwiseXorExpr->bitwiseXorExp.rightBitwiseXorExp);
+	}
+	freeBitwiseAndAST(bitwiseXorExpr->bitwiseXorExp.bitwiseAndExp);
+	free(bitwiseXorExpr);
+}
+
+void freeBitwiseAndAST(ASTNode * bitwiseAndExpr)
+{
+	if (bitwiseAndExpr->type == BINARY_OP) {
+		freeBitwiseAndAST(bitwiseAndExpr->bitwiseAndExp.rightBitwiseAndExp);
+	}
+	freeEqualityAST(bitwiseAndExpr->bitwiseAndExp.equalityExp);
+	free(bitwiseAndExpr);
 }
 
 void freeEqualityAST(ASTNode * eqExpr)
@@ -61,8 +88,17 @@ void freeRelationAST(ASTNode * relaExpr)
 	if (relaExpr->type == BINARY_OP) {
 		freeRelationAST(relaExpr->relationalExp.rightRelationalExp);
 	}
-	freeAdditiveAST(relaExpr->relationalExp.additiveExp);
+	freeBitwiseShiftAST(relaExpr->relationalExp.bitwiseShiftExp);
 	free(relaExpr);
+}
+
+void freeBitwiseShiftAST(ASTNode * bitwiseShiftExpr)
+{
+	if (bitwiseShiftExpr->type == BINARY_OP) {
+		freeBitwiseShiftAST(bitwiseShiftExpr->bitwiseShiftExp.rightBitwiseShiftExp);
+	}
+	freeAdditiveAST(bitwiseShiftExpr->bitwiseShiftExp.additiveExp);
+	free(bitwiseShiftExpr);
 }
 
 void freeAdditiveAST(ASTNode * addExpr)

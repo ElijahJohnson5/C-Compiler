@@ -5,8 +5,12 @@ void generateFactor(struct ASTNode *factor, FILE *f);
 void generateTerm(struct ASTNode *term, FILE *f);
 //Expressions
 void generateAdditiveExpr(struct ASTNode *addExpr, FILE *f);
+void generateBitwiseShiftExpr(struct ASTNode *bitwiseShiftExp, FILE *f);
 void generateRelationalExpr(struct ASTNode *relaExpr, FILE *f);
 void generateEqualityExpr(struct ASTNode *eqExpr, FILE *f);
+void generateBitwiseAndExpr(struct ASTNode *bitwiseAndExp, FILE *f);
+void generateBitwiseXorExpr(struct ASTNode *bitwiseXorExp, FILE *f);
+void generateBitwiseOrExpr(struct ASTNode *bitwiseOrExp, FILE *f);
 void generateLogicalAndExpr(struct ASTNode *logAndExpr, FILE *f);
 void generateExpr(struct ASTNode *expr, FILE *f);
 //End expression
