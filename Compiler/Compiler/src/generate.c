@@ -29,7 +29,7 @@ void generateFactor(ASTNode * factor, FILE * f)
 		}
 	}
 	else if (factor->type == EXPRESSION) {
-		generateExpr(factor->factor.expression, f);
+		generateExpr(factor->factor.logicalOrExp, f);
 	}
 }
 
@@ -229,11 +229,11 @@ void generateLogicalAndExpr(ASTNode * logAndExpr, FILE * f)
 void generateExpr(ASTNode * expr, FILE *f)
 {
 	if (expr->type == BINARY_OP) {
-		generateExpr(expr->expression.rightExp, f);
+		generateExpr(expr->logicalOrExp.rightExp, f);
 		fprintf(f, "push  %%eax\n");
 	}
-	generateLogicalAndExpr(expr->expression.logicalAndExp, f);
-	if (!strcmp(expr->expression.op, "||")) {
+	generateLogicalAndExpr(expr->logicalOrExp.logicalAndExp, f);
+	if (!strcmp(expr->logicalOrExp.op, "||")) {
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "orl  %%ecx, %%eax\n");
 		fprintf(f, "movl  $0, %%eax\n");

@@ -17,25 +17,32 @@ void freeAST(ASTNode * root)
 	free(root);
 }
 
+//Update for variable amount of statements
 void freeFunctionAST(ASTNode * function)
 {
 	freeStatementAST(function->function.body);
 	free(function);
 }
 
+//Update function to use freeExpr
 void freeStatementAST(ASTNode * statement)
 {
-	freeExprAST(statement->statement.expression);
+	freeLogicalOrExprAST(statement->statement.expression);
 	free(statement);
 }
 
+//Write this function
 void freeExprAST(ASTNode * expr)
 {
-	if (expr->type == BINARY_OP) {
-		freeExprAST(expr->expression.rightExp);
+}
+
+void freeLogicalOrExprAST(ASTNode * logicalOrExpr)
+{
+	if (logicalOrExpr->type == BINARY_OP) {
+		freeLogicalOrExprAST(logicalOrExpr->logicalOrExp.rightExp);
 	}
-	freeLogicalAndAST(expr->expression.logicalAndExp);
-	free(expr);
+	freeLogicalAndAST(logicalOrExpr->logicalOrExp.logicalAndExp);
+	free(logicalOrExpr);
 }
 
 void freeLogicalAndAST(ASTNode * logAndExpr)
@@ -119,6 +126,7 @@ void freeTermAST(ASTNode * term)
 	free(term);
 }
 
+//Update function for variable types
 void freeFactorAST(ASTNode * factor)
 {
 	if (factor->type == CONSTANT_INT) {
@@ -128,6 +136,6 @@ void freeFactorAST(ASTNode * factor)
 		freeFactorAST(factor->factor.factor);
 	}
 	else {
-		freeExprAST(factor->factor.expression);
+		freeLogicalOrExprAST(factor->factor.logicalOrExp);
 	}
 }

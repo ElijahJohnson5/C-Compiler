@@ -4,16 +4,19 @@
 #include <string.h>
 #include <ctype.h>
 
+//Global keywords we support
 char *KEYWORDS[] = { "int", "return" };
 
 void freeTokenList(TokenList * list)
 {
+	//Free list recursivly
 	if (list) {
 		freeTokenList(list->next);
 		free(list);
 	}
 }
 
+//Create new node and set next to null
 TokenList * createTokenList()
 {
 	TokenList *newToken = malloc(sizeof(TokenList));
@@ -21,6 +24,7 @@ TokenList * createTokenList()
 	return newToken;
 }
 
+//Prints out the token list based on the type
 void printTokenList(TokenList * list)
 {
 	TokenList* temp = list;
@@ -30,6 +34,7 @@ void printTokenList(TokenList * list)
 	}
 }
 
+//Able to get string from a token type
 const char * getTokenType(TokenType type)
 {
 	switch (type) {
@@ -61,10 +66,12 @@ const char * getTokenType(TokenType type)
 	case BITWISE_XOR: return "^";
 	case BITWISE_SHIFT_LEFT: return "<<";
 	case BITWISE_SHIFT_RIGHT: return ">>";
+	case ASSIGNMENT: return "=";
 	}
 	return NULL;
 }
 
+//Check if a string is a two char token
 int isTwoCharToken(char *toCheck) 
 {
 	if (!strcmp(toCheck, "&&")) {
@@ -95,6 +102,7 @@ int isTwoCharToken(char *toCheck)
 	return -1;
 }
 
+//Check if the toCheck is a single char token
 int isToken(char * toCheck)
 {
 	switch (*toCheck) {
@@ -132,11 +140,14 @@ int isToken(char * toCheck)
 		return BITWISE_OR;
 	case '^':
 		return BITWISE_XOR;
+	case '=':
+		return ASSIGNMENT;
 	}
 
 	return -1;
 }
 
+//Check string against keyword strings
 char * isKeyword(char * toCheck)
 {
 	for (int i = 0; i < 2; i++) {
@@ -156,6 +167,7 @@ int isLiteral(char * toCheck)
 	return atoi(toCheck);
 }
 
+//Check if a token is a unary operator
 int isUnOp(Token next)
 {
 	switch (next.type) {

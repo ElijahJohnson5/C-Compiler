@@ -17,8 +17,10 @@ ASTNode * parseProgram(TokenList** tokens)
 
 ASTNode * parseFunction(TokenList** tokens)
 {
+	int statementCount = 0, currentSize = 0;
 	ASTNode *function = malloc(sizeof(ASTNode));
 	function->type = FUNCTION;
+	function->function.body = NULL;
 	Token token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != KEYWORD && strcmp(token.value.keyword, "int")) {
@@ -54,7 +56,19 @@ ASTNode * parseFunction(TokenList** tokens)
 		return NULL;
 	}
 
-	function->function.body = parseStatement(tokens);
+	ASTNode *statement = NULL;
+
+	while ((statement = parseStatement(tokens)) != NULL) {
+		if (function->function.body == NULL || statementCount >= currentSize) {
+			currentSize++;
+			function->function.body = realloc(function->function.body, sizeof(ASTNode *) * currentSize);
+		}
+		function->function.body[statementCount++] = statement;
+		if (statement->type == RETURN_STATEMENT) {
+			break;
+		}
+	}
+	function->function.statementCount = statementCount;
 
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
@@ -70,18 +84,36 @@ ASTNode * parseStatement(TokenList** tokens)
 	ASTNode *statement = malloc(sizeof(ASTNode));
 	statement->type = STATEMENT;
 	Token token = (*tokens)->token;
-	*tokens = (*tokens)->next;
-	if (token.type != KEYWORD && strcmp(token.value.keyword, "return")) {
-		free(statement);
+	if (token.type == KEYWORD && !strcmp(token.value.keyword, "return")) {
+		*tokens = (*tokens)->next;
+		statement->type = RETURN_STATEMENT;
+		statement->statement.returnExpression = parseExpr(tokens);
+	}
+	else if (token.type != KEYWORD) {
+		statement->statement.expression = parseExpr(tokens);
+	}
+	else if (token.type == KEYWORD) {
+		*tokens = (*tokens)->next;
+		token = (*tokens)->token;
+		*tokens = (*tokens)->next;
+		statement->type = DECLARE_STATEMENT;
+		statement->statement.id = token.value.identifier;
+		token = (*tokens)->token;
+		if (token.type == ASSIGNMENT) {
+			*tokens = (*tokens)->next;
+			statement->statement.optinalAssignExpression = parseExpr(tokens);
+		}
+		else {
+			statement->statement.optinalAssignExpression = NULL;
+		}
+	}
+	else {
 		return NULL;
 	}
-
-	statement->statement.expression = parseExpr(tokens);
 
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != SEMICOLON) {
-		free(statement);
 		return NULL;
 	}
 
@@ -92,17 +124,38 @@ ASTNode * parseExpr(TokenList ** tokens)
 {
 	ASTNode *expr = malloc(sizeof(ASTNode));
 	expr->type = EXPRESSION;
-	expr->expression.rightExp = NULL;
-	expr->expression.logicalAndExp = parseLogicalAndExpr(tokens);
+	Token token = (*tokens)->token;
+	if (token.type == IDENTIFIER && (*tokens)->next->token.type == ASSIGNMENT) {
+		expr->type = ASSIGN_EXPRESSION;
+		expr->expression.id = token.value.identifier;
+		*tokens = (*tokens)->next;
+		token = (*tokens)->token;
+		*tokens = (*tokens)->next;
+		expr->expression.op = token.value.token;
+		expr->expression.expression = parseExpr(tokens);
+		return expr;
+	} else {
+		expr->expression.logicalOrExp = parseLogicalOrExpr(tokens);
+		return expr;
+	}
+	return NULL;
+}
+
+ASTNode * parseLogicalOrExpr(TokenList ** tokens)
+{
+	ASTNode *expr = malloc(sizeof(ASTNode));
+	expr->type = EXPRESSION;
+	expr->logicalOrExp.rightExp = NULL;
+	expr->logicalOrExp.logicalAndExp = parseLogicalAndExpr(tokens);
 	Token next = (*tokens)->token;
 
 	if (next.type == LOGICAL_OR) {
 		(*tokens) = (*tokens)->next;
 		expr->type = BINARY_OP;
-		expr->expression.op[0] = next.value.leftToken;
-		expr->expression.op[1] = next.value.rightToken;
-		expr->expression.op[2] = 0;
-		expr->expression.rightExp = parseExpr(tokens);
+		expr->logicalOrExp.op[0] = next.value.leftToken;
+		expr->logicalOrExp.op[1] = next.value.rightToken;
+		expr->logicalOrExp.op[2] = 0;
+		expr->logicalOrExp.rightExp = parseLogicalOrExpr(tokens);
 	}
 
 	return expr;
@@ -287,7 +340,7 @@ ASTNode * parseFactor(TokenList ** tokens)
 	if (next.type == OPEN_PAREN) {
 		//"(" <exp> ")"
 		factor->type = EXPRESSION;
-		factor->factor.expression = parseExpr(tokens);
+		factor->factor.logicalOrExp = parseLogicalOrExpr(tokens);
 		next = (*tokens)->token;
 		(*tokens) = (*tokens)->next;
 		if (next.type != CLOSE_PAREN) {
@@ -309,6 +362,11 @@ ASTNode * parseFactor(TokenList ** tokens)
 		factor->value = next.value.intLiteral;
 		return factor;
 	}
+	else if (next.type == IDENTIFIER) {
+		factor->type = VARIABLE;
+		factor->factor.id = next.value.identifier;
+		return factor;
+	}
 
 	return NULL;
 }
@@ -325,25 +383,53 @@ void printFunction(ASTNode * function)
 	printf("FUN %s %s:\n", getReturnType(function->function.returnType), function->function.name);
 	printf("\t params: ()\n");
 	printf("\t body:\n");
-	printStatement(function->function.body);
+	for (int i = 0; i < function->function.statementCount; i++) {
+		printStatement(function->function.body[i]);
+	}
 }
 
 void printStatement(ASTNode * statement)
 {
-	printf("\t  RETURN ");
-	printExpr(statement->statement.expression);
+	if (statement->type == RETURN_STATEMENT) {
+		printf("\t  RETURN ");
+		printExpr(statement->statement.returnExpression);
+	}
+	else if (statement->type == DECLARE_STATEMENT) {
+		printf("\t  INT<%s> ", statement->statement.id);
+		if (statement->statement.optinalAssignExpression != NULL) {
+			printf("=");
+			printExpr(statement->statement.optinalAssignExpression);
+		}
+	}
+	else {
+		printf("\t ");
+		printExpr(statement->statement.expression);
+	}
+
 	printf("\n");
 }
 
 void printExpr(ASTNode * expr)
 {
 	if (expr->type == EXPRESSION) {
-		printLogicalAndExpr(expr->expression.logicalAndExp);
+		printLogicalOrExpr(expr->expression.logicalOrExp);
 	}
-	else if (expr->type == BINARY_OP) {
-		printLogicalAndExpr(expr->expression.logicalAndExp);
-		printf(" %s ", expr->expression.op);
-		printExpr(expr->expression.rightExp);
+	else if (expr->type == ASSIGN_EXPRESSION) {
+		printLogicalOrExpr(expr->expression.logicalOrExp);
+		printf(" INT<%s> %c ", expr->expression.id, expr->expression.op);
+		printExpr(expr->expression.expression);
+	}
+}
+
+void printLogicalOrExpr(ASTNode * logicalOrExp)
+{
+	if (logicalOrExp->type == EXPRESSION) {
+		printLogicalAndExpr(logicalOrExp->logicalOrExp.logicalAndExp);
+	}
+	else if (logicalOrExp->type == BINARY_OP) {
+		printLogicalAndExpr(logicalOrExp->logicalOrExp.logicalAndExp);
+		printf(" %s ", logicalOrExp->logicalOrExp.op);
+		printLogicalOrExpr(logicalOrExp->logicalOrExp.rightExp);
 	}
 
 }
@@ -465,9 +551,12 @@ void printFactor(ASTNode * factor)
 		printf(" %c ", factor->factor.unaryOp);
 		printFactor(factor->factor.factor);
 	}
+	else if (factor->type == VARIABLE) {
+		printf(" %s ", factor->factor.id);
+	}
 	else {
 		printf("(");
-		printExpr(factor->factor.expression);
+		printLogicalOrExpr(factor->factor.logicalOrExp);
 		printf(")");
 	}
 }

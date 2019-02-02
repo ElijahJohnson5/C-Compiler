@@ -6,6 +6,7 @@ struct ASTNode *parseFunction(struct TokenList** tokens);
 struct ASTNode *parseStatement(struct TokenList** tokens);
 //Expressions
 struct ASTNode *parseExpr(struct TokenList** tokens);
+struct ASTNode *parseLogicalOrExpr(struct TokenList** tokens);
 struct ASTNode *parseLogicalAndExpr(struct TokenList** tokens);
 struct ASTNode *parseBitwiseOrExpr(struct TokenList** tokens);
 struct ASTNode *parseBitwiseXorExpr(struct TokenList** tokens);
@@ -25,6 +26,7 @@ void printFunction(struct ASTNode* function);
 void printStatement(struct ASTNode* statement);
 //Expressions
 void printExpr(struct ASTNode *expr);
+void printLogicalOrExpr(struct ASTNode *logOrExpr);
 void printLogicalAndExpr(struct ASTNode *logAndExpr);
 void printBitwiseOrExpr(struct ASTNode *bitwiseOrExpr);
 void printBitwiseXorExpr(struct ASTNode *bitwiseXorExpr);

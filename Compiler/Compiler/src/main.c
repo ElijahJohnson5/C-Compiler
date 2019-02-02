@@ -8,6 +8,7 @@
 #include "ast.h"
 
 int main(int argc, char **argv) {
+	//TODO fix this function, look very bad
 	if (argc > 1) {
 		int tokenCount;
 		FILE *writeTo;
@@ -27,9 +28,10 @@ int main(int argc, char **argv) {
 		ASTNode *root = parseProgram(&tokenList);
 		freeTokenList(headRef);
 		prettyPrintAST(root);
-		generateAssembly(root, writeTo);
-		fclose(writeTo);
-		freeAST(root);
+		//generateAssembly(root, writeTo);
+		//fclose(writeTo);
+		//freeAST(root);
+		free(file);
 	}
 	system("PAUSE");
 	return 0;

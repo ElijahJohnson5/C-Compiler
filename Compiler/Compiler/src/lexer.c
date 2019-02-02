@@ -32,6 +32,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 	int i = 0;
 	*tokenCount = 0;
 	//Arbitrary sized current buffer
+	//TODO make sure this works for any valid c file
 	char *current = calloc(200, sizeof(char));
 	char *twoCharToken = calloc(3, sizeof(char));
 	twoCharToken[2] = 0;
@@ -43,9 +44,10 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 		twoCharToken[1] = *fileString;
 		i++;
 		//Check if it is a token
-		//If it is add the token to the list and lear the current string
+		//If it is add the token to the list and clear the current string
 		if ((tokenType = isToken(current)) != -1) {
 			int temp;
+			//Check if the next char plus current char is a two char token
 			if ((temp = isTwoCharToken(twoCharToken)) != -1) {
 				head->token.type = temp;
 				head->token.value.leftToken = *current;
@@ -60,6 +62,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 			}
 			else {
 				switch (tokenType) {
+				//Assign to the value correctly for greater than and less than
 				case GREATER_THAN:
 				case LESS_THAN:
 					head->token.value.leftToken = *current;
@@ -78,7 +81,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 			}
 			continue;
 		}
-
+		//If we have a two char token
 		if ((tokenType = isTwoCharToken(twoCharToken)) != -1) {
 			head->token.type = tokenType;
 			head->token.value.leftToken = *current;
@@ -98,6 +101,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 
 		//Check if it is a keyword, if it is add it to the list
 		//and clear current
+		//TODO make sure keywords are only read if they are actually a keyword
 		if ((value = isKeyword(current)) != NULL) {
 			head->token.type = KEYWORD;
 			head->token.value.keyword = malloc(strlen(value) + 1 * sizeof(char));
@@ -142,6 +146,9 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 			continue;
 		}
 	}
+	//Free allocated memory
+	free(current);
+	free(twoCharToken);
 
 	return ret;
 }

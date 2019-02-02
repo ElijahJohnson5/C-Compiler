@@ -132,6 +132,21 @@
     <ClCompile Include="tests\bitwise\or.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\statement\assign.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\statement\assign_val.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\statement\exp_return_val.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\statement\multiple_vars.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\statement\unused_exp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\generate.h">
