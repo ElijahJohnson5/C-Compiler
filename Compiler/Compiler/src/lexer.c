@@ -18,7 +18,6 @@ char * readFileToString(FILE * f)
 
 	string = calloc(size + 1, sizeof(char));
 	fread(string, size, 1, f);
-	fclose(f);
 	string[size] = 0;
 	removeSpaces(string);
 	return string;
@@ -65,6 +64,7 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 				case LESS_THAN:
 					head->token.value.leftToken = *current;
 					head->token.value.rightToken = 0;
+					break;
 				}
 				head->token.type = tokenType;
 				head->token.value.token = *current;

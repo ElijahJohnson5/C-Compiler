@@ -30,6 +30,7 @@ typedef struct TokenList {
 	struct TokenList *next;
 } TokenList;
 
+void freeTokenList(TokenList * list);
 TokenList* createTokenList();
 void printTokenList(TokenList *list);
 

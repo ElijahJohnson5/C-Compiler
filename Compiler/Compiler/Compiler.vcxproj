@@ -117,10 +117,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ast.c" />
     <ClCompile Include="src\generate.c" />
     <ClCompile Include="src\lexer.c" />
     <ClCompile Include="src\parser.c" />
     <ClCompile Include="tests\basicoperators\add.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="tests\deep_nested_op.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="tests\logical\and_false.c">
@@ -207,6 +211,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ast.h" />
     <ClInclude Include="src\generate.h" />
     <ClInclude Include="src\lexer.h" />
     <ClInclude Include="src\parser.h" />

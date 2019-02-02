@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "generate.h"
 #include "parser.h"
+#include "ast.h"
 
 int eaxPushed = 0;
 
@@ -12,8 +13,8 @@ void generateFactor(ASTNode * factor, FILE * f)
 		fprintf(f, "movl  $%d, %%eax\n", factor->value);
 	}
 	else if (factor->type == UNARY_OPERATOR) {
-		generateFactor(factor->factor.factor.factor, f);
-		switch (factor->factor.factor.unaryOp) {
+		generateFactor(factor->factor.factor, f);
+		switch (factor->factor.unaryOp) {
 		case '-':
 			fprintf(f, "neg  %%eax\n");
 			break;

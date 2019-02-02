@@ -5,6 +5,7 @@
 #include "token.h"
 #include "lexer.h"
 #include "generate.h"
+#include "ast.h"
 
 int main(int argc, char **argv) {
 	if (argc > 1) {
@@ -17,15 +18,18 @@ int main(int argc, char **argv) {
 		file[strlen(argv[1])] = '\0';
 		FILE *f = fopen(argv[1], "r");
 		writeTo = fopen(file, "w");
-		TokenList* tokenList = tokenizeFile(readFileToString(f), &tokenCount);
+		char *s = readFileToString(f);
+		fclose(f);
+		TokenList* tokenList = tokenizeFile(s, &tokenCount);
+		TokenList * headRef = tokenList;
+		free(s);
 		printTokenList(tokenList);
 		ASTNode *root = parseProgram(&tokenList);
+		freeTokenList(headRef);
 		prettyPrintAST(root);
 		generateAssembly(root, writeTo);
 		fclose(writeTo);
-		//char buf[512];
-		//sprintf(buf, "cmd.exe /c \"gcc -m32 %s -o out\"", file);
-		//system(buf);
+		freeAST(root);
 	}
 	system("PAUSE");
 	return 0;

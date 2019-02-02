@@ -111,6 +111,12 @@
     <ClCompile Include="tests\logical\precedence.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ast.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\deep_nested_op.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\generate.h">
@@ -124,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="src\token.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ast.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

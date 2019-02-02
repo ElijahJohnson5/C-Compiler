@@ -3,13 +3,7 @@
 #include <string.h>
 #include "token.h"
 #include "parser.h"
-
-const char * getReturnType(ReturnType r)
-{
-	switch (r) {
-	case INT: return "INT";
-	}
-}
+#include "ast.h"
 
 ASTNode * parseProgram(TokenList** tokens)
 {
@@ -231,8 +225,8 @@ ASTNode * parseFactor(TokenList ** tokens)
 		//<unary_op> <factor>
 		ASTNode *factor = malloc(sizeof(ASTNode));
 		factor->type = UNARY_OPERATOR;
-		factor->factor.factor.unaryOp = next.value.token;
-		factor->factor.factor.factor = parseFactor(tokens);
+		factor->factor.unaryOp = next.value.token;
+		factor->factor.factor = parseFactor(tokens);
 		return factor;
 	}
 	else if (next.type == INT_LITERAL) {
@@ -253,8 +247,8 @@ void printFactor(ASTNode * factor)
 		printf("Int<%d>", factor->value);
 	}
 	else if (factor->type == UNARY_OPERATOR) {
-		printf(" %c ", factor->factor.factor.unaryOp);
-		printFactor(factor->factor.factor.factor);
+		printf(" %c ", factor->factor.unaryOp);
+		printFactor(factor->factor.factor);
 	}
 	else {
 		printf("(");
@@ -334,13 +328,13 @@ void printExpr(ASTNode * expr)
 		printExpr(expr->expression.rightExp);
 	}
 
-	printf("\n");
 }
 
 void printStatement(ASTNode * statement)
 {
 	printf("\t  RETURN ");
 	printExpr(statement->statement.expression);
+	printf("\n");
 }
 
 void printFunction(ASTNode * function)

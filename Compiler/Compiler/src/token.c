@@ -6,6 +6,14 @@
 
 char *KEYWORDS[] = { "int", "return" };
 
+void freeTokenList(TokenList * list)
+{
+	if (list) {
+		freeTokenList(list->next);
+		free(list);
+	}
+}
+
 TokenList * createTokenList()
 {
 	TokenList *newToken = malloc(sizeof(TokenList));
@@ -44,6 +52,9 @@ const char * getTokenType(TokenType type)
 	case NOT_EQUAL_TO: return "!=";
 	case LESS_THAN: return "<";
 	case GREATER_THAN: return ">";
+	case ADDITION: return "+";
+	case MULTIPLICATION: return "*";
+	case DIVISION: return "/";
 	}
 	return NULL;
 }
