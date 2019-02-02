@@ -96,11 +96,13 @@ ASTNode *parseFactor(struct TokenList** tokens);
 
 void printFactor(ASTNode *factor);
 void printTerm(ASTNode *term);
+//Expressions
+void printAdditiveExpr(ASTNode *addExpr);
+void printRelationalExpr(ASTNode *relaExpr);
 void printEqualityExpr(ASTNode *eqExpr);
 void printLogicalAndExpr(ASTNode *logAndExpr);
-void printRelationalExpr(ASTNode *relaExpr);
-void printAdditiveExpr(ASTNode *addExpr);
 void printExpr(ASTNode *expr);
+//End expression
 void printStatement(ASTNode* statement);
 void printFunction(ASTNode* function);
 void prettyPrintAST(ASTNode *root);

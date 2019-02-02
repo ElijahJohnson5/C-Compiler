@@ -60,6 +60,12 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 				}
 			}
 			else {
+				switch (tokenType) {
+				case GREATER_THAN:
+				case LESS_THAN:
+					head->token.value.leftToken = *current;
+					head->token.value.rightToken = 0;
+				}
 				head->token.type = tokenType;
 				head->token.value.token = *current;
 				(*tokenCount)++;

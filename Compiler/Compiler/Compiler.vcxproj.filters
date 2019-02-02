@@ -21,12 +21,6 @@
     <ClCompile Include="tests\return_2000.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\nested_op.c">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\bitwise.c">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\generate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -42,40 +36,79 @@
     <ClCompile Include="src\token.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\nested_ops_2.c">
+    <ClCompile Include="tests\logical\ge_false.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\add.c">
+    <ClCompile Include="tests\logical\ge_true.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\associativity.c">
+    <ClCompile Include="tests\logical\gt_true.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\divide.c">
+    <ClCompile Include="tests\logical\le_false.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\mult.c">
+    <ClCompile Include="tests\logical\lt_false.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\parens.c">
+    <ClCompile Include="tests\basicoperators\add.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\precedence.c">
+    <ClCompile Include="tests\basicoperators\associativity.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\sub_neg.c">
+    <ClCompile Include="tests\basicoperators\nested_op.c">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\basicoperators\nested_ops_2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\unop_add.c">
+    <ClCompile Include="tests\basicoperators\parens.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\unop_parens.c">
+    <ClCompile Include="tests\basicoperators\precedence.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\and_false.c">
+    <ClCompile Include="tests\basicoperators\sub_neg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\ge_false.c">
+    <ClCompile Include="tests\basicoperators\unop_add.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\basicoperators\unop_parens.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\and_false.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\basicoperators\divide.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\basicoperators\mult.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\ne_true.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\basicoperators\bitwise.c">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\lt_true.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\e_true.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\e_false.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\or_false.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\or_true.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\logical\precedence.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

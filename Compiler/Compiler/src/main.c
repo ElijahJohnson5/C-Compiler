@@ -21,8 +21,8 @@ int main(int argc, char **argv) {
 		printTokenList(tokenList);
 		ASTNode *root = parseProgram(&tokenList);
 		prettyPrintAST(root);
-		//generateAssembly(root, writeTo);
-		//fclose(writeTo);
+		generateAssembly(root, writeTo);
+		fclose(writeTo);
 		//char buf[512];
 		//sprintf(buf, "cmd.exe /c \"gcc -m32 %s -o out\"", file);
 		//system(buf);
