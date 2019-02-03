@@ -26,7 +26,6 @@ ASTNode * parseProgram(TokenList** tokens)
 	root->type = PROGRAM;
 	root->program.count = 1;
 	root->program.children = parseFunction(tokens);
-	
 	return root;
 }
 
@@ -39,7 +38,7 @@ ASTNode * parseFunction(TokenList** tokens)
 	Token token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != KEYWORD && strcmp(token.value.keyword, "int")) {
-		free(function);
+		freeFunctionAST(function);
 		return NULL;
 	}
 
@@ -47,27 +46,27 @@ ASTNode * parseFunction(TokenList** tokens)
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != IDENTIFIER) {
-		free(function);
+		freeFunctionAST(function);
 		return NULL;
 	}
 	function->function.name = token.value.identifier;
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != OPEN_PAREN) {
-		free(function);
+		freeFunctionAST(function);
 		return NULL;
 	}
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != CLOSE_PAREN) {
-		free(function);
+		freeFunctionAST(function);
 		return NULL;
 	}
 
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != OPEN_BRACE) {
-		free(function);
+		freeFunctionAST(function);
 		return NULL;
 	}
 
@@ -88,7 +87,7 @@ ASTNode * parseFunction(TokenList** tokens)
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != CLOSE_BRACE) {
-		free(function);
+		freeFunctionAST(function);
 		return NULL;
 	}
 	return function;
@@ -123,12 +122,14 @@ ASTNode * parseStatement(TokenList** tokens)
 		}
 	}
 	else {
+		freeStatementAST(statement);
 		return NULL;
 	}
 
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
 	if (token.type != SEMICOLON) {
+		freeStatementAST(statement);
 		return NULL;
 	}
 
@@ -150,14 +151,17 @@ ASTNode * parseExpr(TokenList ** tokens)
 		expr->expression.expression = parseExpr(tokens);
 		return expr;
 	} else {
-		expr->expression.precedenceExp = parsePrecedenceExpr(tokens, 11);
+		expr->expression.precedenceExp = parsePrecedenceExpr(tokens);
 		return expr;
 	}
+
+	freeExprAST(expr);
 	return NULL;
 }
 
-ASTNode * parsePrecedenceExpr(TokenList ** tokens, int precedenceLevel)
+ASTNode * parsePrecedenceExpr(TokenList ** tokens)
 {
+	int precedenceLevel = 11;
 	ASTNode *expr = malloc(sizeof(ASTNode));
 	expr->type = EXPRESSION;
 	expr->precedanceExp.rightExp = NULL;
@@ -186,7 +190,7 @@ ASTNode * parsePrecedenceExpr(TokenList ** tokens, int precedenceLevel)
 				expr->precedanceExp.op[1] = 0;
 				expr->precedanceExp.op[2] = 0;
 			}
-			expr->precedanceExp.rightExp = parsePrecedenceExpr(tokens, 11);
+			expr->precedanceExp.rightExp = parsePrecedenceExpr(tokens);
 			break;
 		}
 	}
@@ -202,10 +206,11 @@ ASTNode * parseFactor(TokenList ** tokens)
 	if (next.type == OPEN_PAREN) {
 		//"(" <exp> ")"
 		factor->type = EXPRESSION;
-		factor->factor.precedenceExpr = parsePrecedenceExpr(tokens, 11);
+		factor->factor.precedenceExpr = parsePrecedenceExpr(tokens);
 		next = (*tokens)->token;
 		(*tokens) = (*tokens)->next;
 		if (next.type != CLOSE_PAREN) {
+			freeFactorAST(factor);
 			return NULL;
 		}
 		return factor;
@@ -229,11 +234,9 @@ ASTNode * parseFactor(TokenList ** tokens)
 		factor->factor.id = next.value.identifier;
 		return factor;
 	}
-
+	freeFactorAST(factor);
 	return NULL;
 }
-
-
 
 void prettyPrintAST(ASTNode * root)
 {
@@ -285,8 +288,11 @@ void printExpr(ASTNode * expr)
 
 void printPrecedenceExpr(ASTNode * precedenceExp)
 {
-	printFactor(precedenceExp->precedanceExp.exp);
+	if (precedenceExp->type == EXPRESSION) {
+		printFactor(precedenceExp->precedanceExp.exp);
+	}
 	if (precedenceExp->type == BINARY_OP) {
+		printFactor(precedenceExp->precedanceExp.exp);
 		printf(" %s ", precedenceExp->precedanceExp.op);
 		printPrecedenceExpr(precedenceExp->precedanceExp.rightExp);
 	}

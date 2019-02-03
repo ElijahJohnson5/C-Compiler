@@ -154,16 +154,20 @@ void generateExpr(ASTNode * expr, FILE *f)
 void generateStatement(ASTNode * statement, FILE *f)
 {
 	generateExpr(statement->statement.expression, f);
-	fprintf(f, "ret  \n");
 }
 
 void generateFunction(ASTNode * function, FILE *f)
 {
 	fprintf(f, " .globl _%s\n", function->function.name);
 	fprintf(f, "_%s:\n", function->function.name);
+	fprintf(f, "push  %%ebp\n");
+	fprintf(f, "movl  %%esp, %%ebp\n");
 	for (int i = 0; i < function->function.statementCount; i++) {
 		generateStatement(function->function.body[i], f);
 	}
+	fprintf(f, "movl  %%ebp, %%esp\n");
+	fprintf(f, "pop  %%ebp");
+	fprintf(f, "ret  \n");
 }
 
 void generateAssembly(ASTNode * root, FILE *f)

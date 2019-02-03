@@ -147,6 +147,9 @@
     <ClCompile Include="tests\statement\unused_exp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\statement\var_assig_com.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\generate.h">

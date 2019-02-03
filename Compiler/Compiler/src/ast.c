@@ -30,7 +30,17 @@ void freeFunctionAST(ASTNode * function)
 //Update function to use freeExpr
 void freeStatementAST(ASTNode * statement)
 {
-	freeExprAST(statement->statement.expression);
+	if (statement->type == RETURN_STATEMENT) {
+		freeExprAST(statement->statement.returnExpression);
+	}
+	else if (statement->type == DECLARE_STATEMENT) {
+		if (statement->statement.optinalAssignExpression != NULL) {
+			freeExprAST(statement->statement.optinalAssignExpression);
+		}
+	}
+	else {
+		freeExprAST(statement->statement.expression);
+	}
 	free(statement);
 }
 
@@ -48,8 +58,11 @@ void freeExprAST(ASTNode * expr)
 
 void freePrecedenceExprAST(ASTNode * precedenceExpr)
 {
-	freeFactorAST(precedenceExpr->precedanceExp.exp);
-	if (precedenceExpr->type == BINARY_OP) {
+	if (precedenceExpr->type == EXPRESSION) {
+		freeFactorAST(precedenceExpr->precedanceExp.exp);
+	}
+	else if (precedenceExpr->type == BINARY_OP) {
+		freeFactorAST(precedenceExpr->precedanceExp.exp);
 		freePrecedenceExprAST(precedenceExpr->precedanceExp.rightExp);
 	}
 	free(precedenceExpr);

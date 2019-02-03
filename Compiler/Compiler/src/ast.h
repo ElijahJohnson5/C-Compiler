@@ -31,6 +31,14 @@ typedef struct ASTNode {
 			};
 		} factor;
 		struct {
+			//All need to have an order of precedence. Can use one struct for this
+			/*<logical - or -exp> :: = <logical - and-exp>{ "||" <logical - and-exp> }
+				<logical - and-exp> :: = <equality - exp>{ "&&" <equality - exp> }
+				<equality - exp> :: = <relational - exp>{ ("!=" | "==") < relational - exp > }
+				<relational - exp> :: = <additive - exp>{ ("<" | ">" | "<=" | ">=") < additive - exp > }
+				<additive - exp> :: = <term>{ ("+" | "-") < term > }
+				<term> :: = <factor>{ ("*" | "/") < factor > }
+			*/
 			struct ASTNode *exp;
 			struct {
 				struct ASTNode *rightExp;

@@ -5,6 +5,5 @@ neg  %eax
 push  %eax
 movl  $2, %eax
 pop  %ecx
-subl  %eax, %ecx
-movl  %ecx, %eax
+subl  %ecx, %eax
 ret  

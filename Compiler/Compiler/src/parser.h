@@ -6,7 +6,7 @@ struct ASTNode *parseFunction(struct TokenList** tokens);
 struct ASTNode *parseStatement(struct TokenList** tokens);
 //Expressions
 struct ASTNode *parseExpr(struct TokenList** tokens);
-struct ASTNode *parsePrecedenceExpr(struct TokenList** tokens, int precedenceLevel);
+struct ASTNode *parsePrecedenceExpr(struct TokenList** tokens);
 struct ASTNode *parseFactor(struct TokenList** tokens);
 
 //Function and statement
