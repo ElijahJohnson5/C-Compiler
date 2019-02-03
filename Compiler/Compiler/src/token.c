@@ -71,6 +71,42 @@ const char * getTokenType(TokenType type)
 	return NULL;
 }
 
+int twoCharTokenType(TokenType type)
+{
+	switch (type) {
+	case OPEN_PAREN: return 0;
+	case CLOSE_PAREN: return 0;
+	case OPEN_BRACE: return 0;
+	case CLOSE_BRACE: return 0;
+	case SEMICOLON: return 0;
+	case KEYWORD: return 0;
+	case INT_LITERAL: return 0;
+	case IDENTIFIER: return 0;
+	case MINUS: return 0;
+	case BITWISE_COMPLIMENT: return 0;
+	case LOGICAL_NEGATION: return 0;
+	case LOGICAL_AND: return 1;
+	case LOGICAL_OR: return 1;
+	case LESS_THAN_EQUAL_TO: return 1;
+	case EQUAL_TO: return 1;
+	case GREATER_THAN_EQUAL_TO: return 1;
+	case NOT_EQUAL_TO: return 1;
+	case LESS_THAN: return 0;
+	case GREATER_THAN: return 0;
+	case ADDITION: return 0;
+	case MULTIPLICATION: return 0;
+	case DIVISION: return 0;
+	case MODULUS: return 0;
+	case BITWISE_AND: return 0;
+	case BITWISE_OR: return 0;
+	case BITWISE_XOR: return 0;
+	case BITWISE_SHIFT_LEFT: return 1;
+	case BITWISE_SHIFT_RIGHT: return 1;
+	case ASSIGNMENT: return 0;
+	}
+	return 0;
+}
+
 //Check if a string is a two char token
 int isTwoCharToken(char *toCheck) 
 {

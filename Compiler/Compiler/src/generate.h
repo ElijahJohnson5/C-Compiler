@@ -4,6 +4,8 @@
 void generateFactor(struct ASTNode *factor, FILE *f);
 void generateTerm(struct ASTNode *term, FILE *f);
 //Expressions
+void generateOpAssembly(char *op, FILE *f);
+void generatePrecedenceExpr(struct ASTNode *precedenceExpr, FILE *f);
 void generateAdditiveExpr(struct ASTNode *addExpr, FILE *f);
 void generateBitwiseShiftExpr(struct ASTNode *bitwiseShiftExp, FILE *f);
 void generateRelationalExpr(struct ASTNode *relaExpr, FILE *f);

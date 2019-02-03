@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
 		ASTNode *root = parseProgram(&tokenList);
 		freeTokenList(headRef);
 		prettyPrintAST(root);
-		//generateAssembly(root, writeTo);
-		//fclose(writeTo);
+		generateAssembly(root, writeTo);
+		fclose(writeTo);
 		//freeAST(root);
 		free(file);
 	}
