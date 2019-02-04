@@ -1,23 +1,14 @@
 #ifndef GENERATE_H
 #define GENERATE_H
 
-void generateFactor(struct ASTNode *factor, FILE *f);
-void generateTerm(struct ASTNode *term, FILE *f);
+void generateFactor(struct ASTNode *factor, FILE *f, struct HashMap *map);
 //Expressions
-void generateOpAssembly(char *op, FILE *f);
-void generatePrecedenceExpr(struct ASTNode *precedenceExpr, FILE *f);
-void generateAdditiveExpr(struct ASTNode *addExpr, FILE *f);
-void generateBitwiseShiftExpr(struct ASTNode *bitwiseShiftExp, FILE *f);
-void generateRelationalExpr(struct ASTNode *relaExpr, FILE *f);
-void generateEqualityExpr(struct ASTNode *eqExpr, FILE *f);
-void generateBitwiseAndExpr(struct ASTNode *bitwiseAndExp, FILE *f);
-void generateBitwiseXorExpr(struct ASTNode *bitwiseXorExp, FILE *f);
-void generateBitwiseOrExpr(struct ASTNode *bitwiseOrExp, FILE *f);
-void generateLogicalAndExpr(struct ASTNode *logAndExpr, FILE *f);
-void generateExpr(struct ASTNode *expr, FILE *f);
+void generateOpAssembly(char *op, FILE *f, struct HashMap *map);
+void generatePrecedenceExpr(struct ASTNode *precedenceExpr, FILE *f, struct HashMap *map);
+void generateExpr(struct ASTNode *expr, FILE *f, struct HashMap *map);
 //End expression
-void generateStatement(struct ASTNode *statement, FILE *f);
-void generateFunction(struct ASTNode *function, FILE *f);
+void generateStatement(struct ASTNode *statement, FILE *f, struct HashMap *map);
+void generateFunction(struct ASTNode *function, FILE *f, struct HashMap *map);
 void generateAssembly(struct ASTNode *root, FILE *f);
 
 #endif // !GENERATE_H

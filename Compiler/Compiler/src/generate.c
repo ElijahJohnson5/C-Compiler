@@ -4,16 +4,19 @@
 #include "generate.h"
 #include "parser.h"
 #include "ast.h"
+#include "map.h"
 
 //TODO implement << >>
 
-void generateFactor(ASTNode * factor, FILE * f)
+int stackOffset = -4;
+
+void generateFactor(ASTNode * factor, FILE * f, HashMap *map)
 {
 	if (factor->type == CONSTANT_INT) {
 		fprintf(f, "movl  $%d, %%eax\n", factor->value);
 	}
 	else if (factor->type == UNARY_OPERATOR) {
-		generateFactor(factor->factor.factor, f);
+		generateFactor(factor->factor.factor, f, map);
 		switch (factor->factor.unaryOp) {
 		case '-':
 			fprintf(f, "neg  %%eax\n");
@@ -29,11 +32,14 @@ void generateFactor(ASTNode * factor, FILE * f)
 		}
 	}
 	else if (factor->type == EXPRESSION) {
-		generatePrecedenceExpr(factor->factor.precedenceExpr, f);
+		generatePrecedenceExpr(factor->factor.precedenceExpr, f, map);
+	}
+	else if (factor->type == VARIABLE) {
+		fprintf(f, "movl  %d(%%ebp), %%eax\n", lookupNode(map, factor->factor.id));
 	}
 }
 
-void generateOpAssembly(char * op, FILE * f)
+void generateOpAssembly(char * op, FILE * f, HashMap *map)
 {
 	if (strcmp(op, "||") == 0) {
 		fprintf(f, "pop  %%ecx\n");
@@ -129,48 +135,64 @@ void generateOpAssembly(char * op, FILE * f)
 	}
 }
 
-void generatePrecedenceExpr(ASTNode * precedenceExpr, FILE * f)
+void generatePrecedenceExpr(ASTNode * precedenceExpr, FILE * f, HashMap *map)
 {
 	if (precedenceExpr->type == BINARY_OP) {
-		generatePrecedenceExpr(precedenceExpr->precedanceExp.rightExp, f);
+		generatePrecedenceExpr(precedenceExpr->precedanceExp.rightExp, f, map);
 		fprintf(f, "push  %%eax\n");
 	}
-	generateFactor(precedenceExpr->precedanceExp.exp, f);
+	generateFactor(precedenceExpr->precedanceExp.exp, f, map);
 
-	generateOpAssembly(precedenceExpr->precedanceExp.op, f);
+	generateOpAssembly(precedenceExpr->precedanceExp.op, f, map);
 }
 
-void generateExpr(ASTNode * expr, FILE *f)
+void generateExpr(ASTNode * expr, FILE *f, HashMap *map)
 {
 	if (expr->type == ASSIGN_EXPRESSION) {
-		generateExpr(expr->expression.expression, f);
+		generateExpr(expr->expression.expression, f, map);
+		fprintf(f, "movl  %%eax, %d(%%ebp)\n", lookupNode(map, expr->expression.id));
 	}
 	else {
-		generatePrecedenceExpr(expr->expression.precedenceExp, f);
+		generatePrecedenceExpr(expr->expression.precedenceExp, f, map);
 	}
-	//Do stuff with op
 }
 
-void generateStatement(ASTNode * statement, FILE *f)
+void generateStatement(ASTNode * statement, FILE *f, HashMap *map)
 {
-	generateExpr(statement->statement.expression, f);
+	if (statement->type == DECLARE_STATEMENT) {
+		if (lookupNode(map, statement->statement.id) != -1) {
+			return;
+		}
+		else {
+			if (statement->statement.optinalAssignExpression != NULL) {
+				generateExpr(statement->statement.optinalAssignExpression, f, map);
+			} 
+			insertHashMap(map, statement->statement.id, stackOffset);
+			stackOffset -= 4;
+			fprintf(f, "push  %%eax\n");
+		}
+	}
+	else {
+		generateExpr(statement->statement.expression, f, map);
+	}
 }
 
-void generateFunction(ASTNode * function, FILE *f)
+void generateFunction(ASTNode * function, FILE *f, HashMap *map)
 {
 	fprintf(f, " .globl _%s\n", function->function.name);
 	fprintf(f, "_%s:\n", function->function.name);
 	fprintf(f, "push  %%ebp\n");
 	fprintf(f, "movl  %%esp, %%ebp\n");
 	for (int i = 0; i < function->function.statementCount; i++) {
-		generateStatement(function->function.body[i], f);
+		generateStatement(function->function.body[i], f, map);
 	}
 	fprintf(f, "movl  %%ebp, %%esp\n");
-	fprintf(f, "pop  %%ebp");
+	fprintf(f, "pop  %%ebp\n");
 	fprintf(f, "ret  \n");
 }
 
 void generateAssembly(ASTNode * root, FILE *f)
 {
-	generateFunction(root->program.children, f);
+	HashMap *map = createNewHashMap(2);
+	generateFunction(root->program.children, f, map);
 }
