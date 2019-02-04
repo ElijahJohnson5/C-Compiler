@@ -6,12 +6,12 @@ movl  $5, %eax
 neg  %eax
 push  %eax
 movl  $6, %eax
-pop  %ecx
-addl  %ecx, %eax
 push  %eax
 movl  $5, %eax
 pop  %ecx
 imul  %ecx, %eax
+pop  %ecx
+addl  %ecx, %eax
 push  %eax
 movl  $3, %eax
 push  %eax
@@ -21,12 +21,12 @@ xor  %edx, %edx
 idivl  %ecx
 push  %eax
 movl  $7, %eax
-pop  %ecx
-addl  %ecx, %eax
 push  %eax
 movl  -4(%ebp), %eax
 pop  %ecx
 imul  %ecx, %eax
+pop  %ecx
+addl  %ecx, %eax
 push  %eax
 movl  $2, %eax
 push  %eax
@@ -39,8 +39,6 @@ push  %eax
 movl  $4, %eax
 push  %eax
 movl  $9, %eax
-pop  %ecx
-addl  %ecx, %eax
 push  %eax
 movl  -4(%ebp), %eax
 pop  %ecx
@@ -49,6 +47,8 @@ push  %eax
 movl  -12(%ebp), %eax
 pop  %ecx
 imul  %ecx, %eax
+pop  %ecx
+addl  %ecx, %eax
 movl  %eax, -12(%ebp)
 movl  -8(%ebp), %eax
 movl  %ebp, %esp

@@ -48,7 +48,7 @@ void freeStatementAST(ASTNode * statement)
 void freeExprAST(ASTNode * expr)
 {
 	if (expr->type == EXPRESSION) {
-		freePrecedenceExprAST(expr->expression.precedenceExp);
+		freeLogicalOrExprAST(expr->expression.precedenceExp);
 	}
 	else if (expr->type == ASSIGN_EXPRESSION) {
 		freeExprAST(expr->expression.expression);
@@ -56,18 +56,95 @@ void freeExprAST(ASTNode * expr)
 	free(expr);
 }
 
-void freePrecedenceExprAST(ASTNode * precedenceExpr)
+void freeLogicalOrExprAST(ASTNode * logicalOrExpr)
 {
-	if (precedenceExpr->type == EXPRESSION) {
-		freeFactorAST(precedenceExpr->precedanceExp.exp);
+	if (logicalOrExpr->type == BINARY_OP) {
+		freeLogicalOrExprAST(logicalOrExpr->logicalOrExp.rightExp);
 	}
-	else if (precedenceExpr->type == BINARY_OP) {
-		freeFactorAST(precedenceExpr->precedanceExp.exp);
-		freePrecedenceExprAST(precedenceExpr->precedanceExp.rightExp);
-	}
-	free(precedenceExpr);
+	freeLogicalAndAST(logicalOrExpr->logicalOrExp.logicalAndExp);
+	free(logicalOrExpr);
 }
 
+void freeLogicalAndAST(ASTNode * logAndExpr)
+{
+	if (logAndExpr->type == BINARY_OP) {
+		freeLogicalAndAST(logAndExpr->logicalAndExp.rightLogicalAndExp);
+	}
+	freeBitwiseOrAST(logAndExpr->logicalAndExp.bitwiseOrExp);
+	free(logAndExpr);
+}
+
+void freeBitwiseOrAST(ASTNode * bitwiseOrExpr)
+{
+	if (bitwiseOrExpr->type == BINARY_OP) {
+		freeBitwiseOrAST(bitwiseOrExpr->bitwiseOrExp.rightBitwiseOrExp);
+	}
+	freeBitwiseXorAST(bitwiseOrExpr->bitwiseOrExp.bitwiseXorExp);
+	free(bitwiseOrExpr);
+}
+
+void freeBitwiseXorAST(ASTNode * bitwiseXorExpr)
+{
+	if (bitwiseXorExpr->type == BINARY_OP) {
+		freeBitwiseXorAST(bitwiseXorExpr->bitwiseXorExp.rightBitwiseXorExp);
+	}
+	freeBitwiseAndAST(bitwiseXorExpr->bitwiseXorExp.bitwiseAndExp);
+	free(bitwiseXorExpr);
+}
+
+void freeBitwiseAndAST(ASTNode * bitwiseAndExpr)
+{
+	if (bitwiseAndExpr->type == BINARY_OP) {
+		freeBitwiseAndAST(bitwiseAndExpr->bitwiseAndExp.rightBitwiseAndExp);
+	}
+	freeEqualityAST(bitwiseAndExpr->bitwiseAndExp.equalityExp);
+	free(bitwiseAndExpr);
+}
+
+void freeEqualityAST(ASTNode * eqExpr)
+{
+	if (eqExpr->type == BINARY_OP) {
+		freeEqualityAST(eqExpr->equalityExp.rightEqualityExp);
+	}
+	freeRelationAST(eqExpr->equalityExp.relationalExp);
+	free(eqExpr);
+}
+
+void freeRelationAST(ASTNode * relaExpr)
+{
+	if (relaExpr->type == BINARY_OP) {
+		freeRelationAST(relaExpr->relationalExp.rightRelationalExp);
+	}
+	freeBitwiseShiftAST(relaExpr->relationalExp.bitwiseShiftExp);
+	free(relaExpr);
+}
+
+void freeBitwiseShiftAST(ASTNode * bitwiseShiftExpr)
+{
+	if (bitwiseShiftExpr->type == BINARY_OP) {
+		freeBitwiseShiftAST(bitwiseShiftExpr->bitwiseShiftExp.rightBitwiseShiftExp);
+	}
+	freeAdditiveAST(bitwiseShiftExpr->bitwiseShiftExp.additiveExp);
+	free(bitwiseShiftExpr);
+}
+
+void freeAdditiveAST(ASTNode * addExpr)
+{
+	if (addExpr->type == BINARY_OP) {
+		freeAdditiveAST(addExpr->additiveExp.rightAdditiveExp);
+	}
+	freeTermAST(addExpr->additiveExp.term);
+	free(addExpr);
+}
+
+void freeTermAST(ASTNode * term)
+{
+	if (term->type == BINARY_OP) {
+		freeTermAST(term->term.rightTerm);
+	}
+	freeFactorAST(term->term.factor);
+	free(term);
+}
 
 //Update function for variable types
 void freeFactorAST(ASTNode * factor)
@@ -78,7 +155,10 @@ void freeFactorAST(ASTNode * factor)
 	else if (factor->type == UNARY_OPERATOR) {
 		freeFactorAST(factor->factor.factor);
 	}
-	else {
-		freePrecedenceExprAST(factor->factor.precedenceExpr);
+	else if (factor->type == EXPRESSION) {
+		freeLogicalOrExprAST(factor->factor.expr);
+	}
+	else if (factor->type == VARIABLE) {
+		free(factor);
 	}
 }

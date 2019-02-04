@@ -22,7 +22,7 @@ typedef struct ASTNode {
 			//<factor> ::= "(" <exp> ")" | <unary_op> <factor> | <int> | <id>
 			union {
 				char *id;
-				struct ASTNode *precedenceExpr;
+				struct ASTNode *expr;
 				//<unary_op> ::= "!" | "~" | "-"
 				struct {
 					char unaryOp;
@@ -30,21 +30,100 @@ typedef struct ASTNode {
 				};
 			};
 		} factor;
+		/*
+		Handle precedence with differnt structs for each level of precedence
+		*/
 		struct {
-			//All need to have an order of precedence. Can use one struct for this
-			/*<logical - or -exp> :: = <logical - and-exp>{ "||" <logical - and-exp> }
-				<logical - and-exp> :: = <equality - exp>{ "&&" <equality - exp> }
-				<equality - exp> :: = <relational - exp>{ ("!=" | "==") < relational - exp > }
-				<relational - exp> :: = <additive - exp>{ ("<" | ">" | "<=" | ">=") < additive - exp > }
-				<additive - exp> :: = <term>{ ("+" | "-") < term > }
-				<term> :: = <factor>{ ("*" | "/") < factor > }
-			*/
-			struct ASTNode *exp;
+			//Multiplication or divison or modulus
+			//<term> ::= <factor> { ("*" | "/" | "%" )  <factor> }
+			struct ASTNode *factor;
+			struct {
+				struct ASTNode *rightTerm;
+				char op;
+			};
+
+		} term;
+		struct {
+			//Addition or subtraction
+			//<additive-exp> ::= <term> { ("+" | "-")  <term> }
+			struct ASTNode *term;
+			struct {
+				struct ASTNode *rightAdditiveExp;
+				char op;
+			};
+		} additiveExp;
+		struct {
+			//Bitwise left and right shift
+			//<bitwise-shift-exp> ::= <additive-exp> { ("<<" | ">>")  <additive-exp> }
+			struct ASTNode *additiveExp;
+			struct {
+				struct ASTNode *rightBitwiseShiftExp;
+				char op[3];
+			};
+		} bitwiseShiftExp;
+		struct {
+			//Greater than less than
+			//<relational-exp> ::= <bitwise-shift-exp> { ("<" | ">" | "<=" | ">=" )  <bitwise-shift-exp> }
+			struct ASTNode *bitwiseShiftExp;
+			struct {
+				struct ASTNode *rightRelationalExp;
+				char op[3];
+			};
+		} relationalExp;
+		struct {
+			//equal too or not equal too
+			//<equality-exp> ::= <relational-exp> { ("==" | "!=")  <relational-exp> }
+			struct ASTNode *relationalExp;
+			struct {
+				struct ASTNode *rightEqualityExp;
+				char op[3];
+			};
+		} equalityExp;
+		struct {
+			//Bitwise AND
+			//<bitwise-and-exp> ::= <equality-exp> { "&" <equality-exp> }
+			struct ASTNode *equalityExp;
+			struct {
+				struct ASTNode *rightBitwiseAndExp;
+				char op;
+			};
+		} bitwiseAndExp;
+		struct {
+			//Bitwise XOR
+			//<bitwise-xor-exp> ::= <bitwise-and-exp> { "^" <bitwise-and-exp> }
+			struct ASTNode *bitwiseAndExp;
+			struct {
+				struct ASTNode *rightBitwiseXorExp;
+				char op;
+			};
+		} bitwiseXorExp;
+		struct {
+			//Bitwise OR
+			//<bitwise-or-exp> ::= <bitwise-xor-exp> { "|" <bitwise-xor-exp> }
+			struct ASTNode *bitwiseXorExp;
+			struct {
+				struct ASTNode *rightBitwiseOrExp;
+				char op;
+			};
+		} bitwiseOrExp;
+		struct {
+			//Logical AND
+			//<logical-and-exp> ::= <bitwise-or-exp> { "&&" <bitwise-or-exp> }
+			struct ASTNode *bitwiseOrExp;
+			struct {
+				struct ASTNode *rightLogicalAndExp;
+				char op[3];
+			};
+		} logicalAndExp;
+		struct {
+			//Logical OR
+			//<logical-or-exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
+			struct ASTNode *logicalAndExp;
 			struct {
 				struct ASTNode *rightExp;
 				char op[3];
 			};
-		} precedanceExp;
+		} logicalOrExp;
 		struct {
 			//<exp> ::= <id> "=" <exp> | <precedence - exp>
 			union {
@@ -94,7 +173,18 @@ void freeFunctionAST(ASTNode *function);
 void freeStatementAST(ASTNode *statement);
 //Expressions
 void freeExprAST(ASTNode *expr);
-void freePrecedenceExprAST(ASTNode *precedenceExpr);
+void freeLogicalOrExprAST(ASTNode *logOrExpr);
+void freeLogicalAndAST(ASTNode *logAndExpr);
+void freeBitwiseOrAST(ASTNode *bitwiseOrExpr);
+void freeBitwiseXorAST(ASTNode *bitwiseXorExpr);
+void freeBitwiseAndAST(ASTNode *bitwiseAndExpr);
+void freeEqualityAST(ASTNode *eqExpr);
+void freeRelationAST(ASTNode *relaExpr);
+void freeBitwiseShiftAST(ASTNode *bitwiseShiftExpr);
+void freeAdditiveAST(ASTNode *addExpr);
+//End expressions
+
+void freeTermAST(ASTNode *term);
 void freeFactorAST(ASTNode *factor);
 
 #endif // !AST_H
