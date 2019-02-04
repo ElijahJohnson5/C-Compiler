@@ -120,6 +120,7 @@
     <ClCompile Include="src\ast.c" />
     <ClCompile Include="src\generate.c" />
     <ClCompile Include="src\lexer.c" />
+    <ClCompile Include="src\map.c" />
     <ClCompile Include="src\parser.c" />
     <ClCompile Include="tests\basicoperators\add.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -230,6 +231,9 @@
     <ClCompile Include="tests\statement\assign_val.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="tests\statement\complicated_statements.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="tests\statement\exp_return_val.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -247,6 +251,7 @@
     <ClInclude Include="src\ast.h" />
     <ClInclude Include="src\generate.h" />
     <ClInclude Include="src\lexer.h" />
+    <ClInclude Include="src\map.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\token.h" />
   </ItemGroup>

@@ -46,7 +46,7 @@ typedef struct ASTNode {
 			};
 		} precedanceExp;
 		struct {
-			//<exp> ::= <id> "=" <exp> | <logical-or-exp>
+			//<exp> ::= <id> "=" <exp> | <precedence - exp>
 			union {
 				struct ASTNode *precedenceExp;
 				struct {
