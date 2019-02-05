@@ -147,7 +147,7 @@ ASTNode * parseExpr(TokenList ** tokens)
 		*tokens = (*tokens)->next;
 		token = (*tokens)->token;
 		*tokens = (*tokens)->next;
-		expr->expression.op = token.value.token;
+		expr->expression.op = token.value.token[0];
 		expr->expression.expression = parseExpr(tokens);
 		return expr;
 	} else {
@@ -170,8 +170,8 @@ ASTNode * parseLogicalOrExpr(TokenList ** tokens)
 	if (next.type == LOGICAL_OR) {
 		(*tokens) = (*tokens)->next;
 		expr->type = BINARY_OP;
-		expr->logicalOrExp.op[0] = next.value.leftToken;
-		expr->logicalOrExp.op[1] = next.value.rightToken;
+		expr->logicalOrExp.op[0] = next.value.token[0];
+		expr->logicalOrExp.op[1] = next.value.token[1];
 		expr->logicalOrExp.op[2] = 0;
 		expr->logicalOrExp.rightExp = parseLogicalOrExpr(tokens);
 	}
@@ -190,8 +190,8 @@ ASTNode * parseLogicalAndExpr(TokenList ** tokens)
 	if (next.type == LOGICAL_AND) {
 		(*tokens) = (*tokens)->next;
 		logicalAndExpr->type = BINARY_OP;
-		logicalAndExpr->logicalAndExp.op[0] = next.value.leftToken;
-		logicalAndExpr->logicalAndExp.op[1] = next.value.rightToken;
+		logicalAndExpr->logicalAndExp.op[0] = next.value.token[0];
+		logicalAndExpr->logicalAndExp.op[1] = next.value.token[1];
 		logicalAndExpr->logicalAndExp.op[2] = 0;
 		logicalAndExpr->logicalAndExp.rightLogicalAndExp = parseLogicalAndExpr(tokens);
 	}
@@ -210,7 +210,7 @@ ASTNode * parseBitwiseOrExpr(TokenList ** tokens)
 	if (next.type == BITWISE_OR) {
 		(*tokens) = (*tokens)->next;
 		orExpr->type = BINARY_OP;
-		orExpr->bitwiseOrExp.op = next.value.token;
+		orExpr->bitwiseOrExp.op = next.value.token[0];
 		orExpr->bitwiseOrExp.rightBitwiseOrExp = parseBitwiseOrExpr(tokens);
 	}
 
@@ -228,7 +228,7 @@ ASTNode * parseBitwiseXorExpr(TokenList ** tokens)
 	if (next.type == BITWISE_XOR) {
 		(*tokens) = (*tokens)->next;
 		xorExpr->type = BINARY_OP;
-		xorExpr->bitwiseXorExp.op = next.value.token;
+		xorExpr->bitwiseXorExp.op = next.value.token[0];
 		xorExpr->bitwiseXorExp.rightBitwiseXorExp = parseBitwiseXorExpr(tokens);
 	}
 
@@ -246,7 +246,7 @@ ASTNode * parseBitwiseAndExpr(TokenList ** tokens)
 	if (next.type == BITWISE_AND) {
 		(*tokens) = (*tokens)->next;
 		andExpr->type = BINARY_OP;
-		andExpr->bitwiseAndExp.op = next.value.token;
+		andExpr->bitwiseAndExp.op = next.value.token[0];
 		andExpr->bitwiseAndExp.rightBitwiseAndExp = parseBitwiseAndExpr(tokens);
 	}
 
@@ -264,8 +264,8 @@ ASTNode * parseEqualityExpr(TokenList ** tokens)
 	if (next.type == NOT_EQUAL_TO || next.type == EQUAL_TO) {
 		(*tokens) = (*tokens)->next;
 		equalityExpr->type = BINARY_OP;
-		equalityExpr->equalityExp.op[0] = next.value.leftToken;
-		equalityExpr->equalityExp.op[1] = next.value.rightToken;
+		equalityExpr->equalityExp.op[0] = next.value.token[0];
+		equalityExpr->equalityExp.op[1] = next.value.token[1];
 		equalityExpr->equalityExp.op[2] = 0;
 		equalityExpr->equalityExp.rightEqualityExp = parseEqualityExpr(tokens);
 	}
@@ -284,8 +284,8 @@ ASTNode * parseRelationalExpr(TokenList ** tokens)
 	if (next.type == GREATER_THAN || next.type == GREATER_THAN_EQUAL_TO || next.type == LESS_THAN || next.type == LESS_THAN_EQUAL_TO) {
 		(*tokens) = (*tokens)->next;
 		relationalExpr->type = BINARY_OP;
-		relationalExpr->relationalExp.op[0] = next.value.leftToken;
-		relationalExpr->relationalExp.op[1] = next.value.rightToken;
+		relationalExpr->relationalExp.op[0] = next.value.token[0];
+		relationalExpr->relationalExp.op[1] = next.value.token[1];
 		relationalExpr->relationalExp.op[2] = 0;
 		relationalExpr->relationalExp.rightRelationalExp = parseRelationalExpr(tokens);
 	}
@@ -304,8 +304,8 @@ ASTNode * parseBitwiseShiftExpr(TokenList ** tokens)
 	if (next.type == BITWISE_SHIFT_RIGHT || next.type == BITWISE_SHIFT_LEFT) {
 		(*tokens) = (*tokens)->next;
 		shiftExpr->type = BINARY_OP;
-		shiftExpr->relationalExp.op[0] = next.value.leftToken;
-		shiftExpr->relationalExp.op[1] = next.value.rightToken;
+		shiftExpr->relationalExp.op[0] = next.value.token[0];
+		shiftExpr->relationalExp.op[1] = next.value.token[1];
 		shiftExpr->relationalExp.op[2] = 0;
 		shiftExpr->relationalExp.rightRelationalExp = parseBitwiseShiftExpr(tokens);
 	}
@@ -324,7 +324,7 @@ ASTNode * parseAdditiveExpr(TokenList ** tokens)
 	if (next.type == ADDITION || next.type == MINUS) {
 		(*tokens) = (*tokens)->next;
 		additiveExpr->type = BINARY_OP;
-		additiveExpr->additiveExp.op = next.value.token;
+		additiveExpr->additiveExp.op = next.value.token[0];
 		additiveExpr->additiveExp.rightAdditiveExp = parseAdditiveExpr(tokens);
 	}
 
@@ -344,7 +344,7 @@ ASTNode * parseTerm(TokenList ** tokens)
 		//<factor> {('*') | ('/') | ('%') <factor>}
 		(*tokens) = (*tokens)->next;
 		term->type = BINARY_OP;
-		term->term.op = next.value.token;
+		term->term.op = next.value.token[0];
 		term->term.rightTerm = parseTerm(tokens);
 	}
 	return term;
@@ -371,7 +371,7 @@ ASTNode * parseFactor(TokenList ** tokens)
 		//<unary_op> <factor>
 		ASTNode *factor = malloc(sizeof(ASTNode));
 		factor->type = UNARY_OPERATOR;
-		factor->factor.unaryOp = next.value.token;
+		factor->factor.unaryOp = next.value.token[0];
 		factor->factor.factor = parseFactor(tokens);
 		return factor;
 	}

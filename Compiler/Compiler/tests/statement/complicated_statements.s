@@ -50,7 +50,24 @@ imul  %ecx, %eax
 pop  %ecx
 addl  %ecx, %eax
 movl  %eax, -12(%ebp)
-movl  -8(%ebp), %eax
+movl  $2, %eax
+push  %eax
+movl  -12(%ebp), %eax
+pop  %ecx
+imul  %ecx, %eax
+push  %eax
+movl  $90, %eax
+push  %eax
+movl  $2, %eax
+push  %eax
+movl  -16(%ebp), %eax
+pop  %ecx
+addl  %ecx, %eax
+pop  %ecx
+xor  %edx, %edx
+idivl  %ecx
+push  %eax
+movl  -20(%ebp), %eax
 movl  %ebp, %esp
 pop  %ebp
 ret  

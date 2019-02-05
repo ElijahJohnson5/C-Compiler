@@ -6,11 +6,7 @@ typedef union TokenValue {
 	int intLiteral;
 	char *keyword;
 	char *identifier;
-	char token;
-	struct {
-		char leftToken;
-		char rightToken;
-	};
+	char token[4];
 } TokenValue;
 
 //TODO Implement >> <<

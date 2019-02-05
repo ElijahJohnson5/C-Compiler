@@ -50,8 +50,10 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 			//Check if the next char plus current char is a two char token
 			if ((temp = isTwoCharToken(twoCharToken)) != -1) {
 				head->token.type = temp;
-				head->token.value.leftToken = *current;
-				head->token.value.rightToken = *fileString++;
+				head->token.value.token[0] = *current;
+				head->token.value.token[1] = *fileString++;
+				head->token.value.token[2] = 0;
+				head->token.value.token[3] = 0;
 				(*tokenCount)++;
 				memset(current, 0, strlen(current));
 				i = 0;
@@ -61,16 +63,12 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 				}
 			}
 			else {
-				switch (tokenType) {
-				//Assign to the value correctly for greater than and less than
-				case GREATER_THAN:
-				case LESS_THAN:
-					head->token.value.leftToken = *current;
-					head->token.value.rightToken = 0;
-					break;
-				}
+				
 				head->token.type = tokenType;
-				head->token.value.token = *current;
+				head->token.value.token[0] = *current;
+				head->token.value.token[1] = 0;
+				head->token.value.token[2] = 0;
+				head->token.value.token[3] = 0;
 				(*tokenCount)++;
 				memset(current, 0, strlen(current));
 				i = 0;
@@ -84,8 +82,10 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 		//If we have a two char token
 		if ((tokenType = isTwoCharToken(twoCharToken)) != -1) {
 			head->token.type = tokenType;
-			head->token.value.leftToken = *current;
-			head->token.value.rightToken = *fileString++;
+			head->token.value.token[0] = *current;
+			head->token.value.token[1] = *fileString++;
+			head->token.value.token[2] = 0;
+			head->token.value.token[3] = 0;
 			(*tokenCount)++;
 			memset(current, 0, strlen(current));
 			i = 0;

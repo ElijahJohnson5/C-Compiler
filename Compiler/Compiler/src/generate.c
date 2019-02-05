@@ -45,21 +45,25 @@ void generateTerm(ASTNode * term, FILE * f, HashMap *map)
 	if (term->type == BINARY_OP) {
 		generateTerm(term->term.rightTerm, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateFactor(term->term.factor, f, map);
 
 	switch (term->term.op) {
 	case '*':
 		fprintf(f, "pop  %%ecx\n");
+		
 		fprintf(f, "imul  %%ecx, %%eax\n");
 		break;
 	case '/':
 		fprintf(f, "pop  %%ecx\n");
+		
 		fprintf(f, "xor  %%edx, %%edx\n");
 		fprintf(f, "idivl  %%ecx\n");
 		break;
 	case '%':
 		fprintf(f, "pop  %%ecx\n");
+		
 		fprintf(f, "xor  %%edx, %%edx\n");
 		fprintf(f, "idivl  %%ecx\n");
 		fprintf(f, "movl  %%edx, %%eax\n");
@@ -72,16 +76,19 @@ void generateAdditiveExpr(ASTNode * addExpr, FILE * f, HashMap *map)
 	if (addExpr->type == BINARY_OP) {
 		generateAdditiveExpr(addExpr->additiveExp.rightAdditiveExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateTerm(addExpr->additiveExp.term, f, map);
 	//plus and minus
 	switch (addExpr->additiveExp.op) {
 	case '+':
 		fprintf(f, "pop  %%ecx\n");
+		
 		fprintf(f, "addl  %%ecx, %%eax\n");
 		break;
 	case '-':
 		fprintf(f, "pop  %%ecx\n");
+		
 		fprintf(f, "subl  %%eax, %%ecx\n");
 		fprintf(f, "movl  %%ecx, %%eax\n");
 		break;
@@ -93,15 +100,18 @@ void generateBitwiseShiftExpr(ASTNode * bitwiseShiftExp, FILE * f, HashMap *map)
 	if (bitwiseShiftExp->type == BINARY_OP) {
 		generateBitwiseShiftExpr(bitwiseShiftExp->bitwiseShiftExp.rightBitwiseShiftExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateAdditiveExpr(bitwiseShiftExp->bitwiseShiftExp.additiveExp, f, map);
 	if (!strcmp(bitwiseShiftExp->bitwiseShiftExp.op, "<<")) {
 		fprintf(f, "pop  %%ecx\n");
+		
 		//TODO figure out shift
 		//fprintf(f, "shl  %%eax, %%ecx\n");
 	}
 	else if (!strcmp(bitwiseShiftExp->bitwiseShiftExp.op, ">>")) {
 		fprintf(f, "pop  %%ecx\n");
+		
 		//TODO figure out shift
 		//fprintf(f, "shr  %%eax, %%ecx\n");
 	}
@@ -112,6 +122,7 @@ void generateRelationalExpr(ASTNode * relaExpr, FILE * f, HashMap *map)
 	if (relaExpr->type == BINARY_OP) {
 		generateRelationalExpr(relaExpr->relationalExp.rightRelationalExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateBitwiseShiftExpr(relaExpr->relationalExp.bitwiseShiftExp, f, map);
 	//Do stuff with op
@@ -120,24 +131,28 @@ void generateRelationalExpr(ASTNode * relaExpr, FILE * f, HashMap *map)
 		fprintf(f, "cmpl  %%ecx, %%eax\n");
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "setle  %%al\n");
+		
 	}
 	else if (!strcmp(relaExpr->relationalExp.op, ">=")) {
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "cmpl  %%ecx, %%eax\n");
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "setge  %%al\n");
+		
 	}
 	else if (!strcmp(relaExpr->relationalExp.op, "<")) {
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "cmpl  %%ecx, %%eax\n");
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "setl  %%al\n");
+		
 	}
 	else if (!strcmp(relaExpr->relationalExp.op, ">")) {
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "cmpl  %%ecx, %%eax\n");
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "setg  %%al\n");
+		
 	}
 }
 
@@ -147,6 +162,7 @@ void generateEqualityExpr(ASTNode * eqExpr, FILE * f, HashMap *map)
 		generateEqualityExpr(eqExpr->equalityExp.rightEqualityExp, f, map);
 		//Push term onto stack
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateRelationalExpr(eqExpr->equalityExp.relationalExp, f, map);
 	if (!strcmp(eqExpr->equalityExp.op, "==")) {
@@ -154,12 +170,14 @@ void generateEqualityExpr(ASTNode * eqExpr, FILE * f, HashMap *map)
 		fprintf(f, "cmpl  %%eax, %%ecx\n");
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "sete  %%al\n");
+		
 	}
 	else if (!strcmp(eqExpr->equalityExp.op, "!=")) {
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "cmpl  %%eax, %%ecx\n");
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "setne  %%al\n");
+		
 	}
 }
 
@@ -168,6 +186,7 @@ void generateBitwiseAndExpr(ASTNode * bitwiseAndExp, FILE * f, HashMap *map)
 	if (bitwiseAndExp->type == BINARY_OP) {
 		generateBitwiseAndExpr(bitwiseAndExp->bitwiseAndExp.rightBitwiseAndExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateEqualityExpr(bitwiseAndExp->bitwiseAndExp.equalityExp, f, map);
 	switch (bitwiseAndExp->bitwiseAndExp.op)
@@ -175,6 +194,7 @@ void generateBitwiseAndExpr(ASTNode * bitwiseAndExp, FILE * f, HashMap *map)
 	case '&':
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "and  %%ecx, %%eax\n");
+		
 	default:
 		break;
 	}
@@ -185,6 +205,7 @@ void generateBitwiseXorExpr(ASTNode * bitwiseXorExp, FILE * f, HashMap *map)
 	if (bitwiseXorExp->type == BINARY_OP) {
 		generateBitwiseXorExpr(bitwiseXorExp->bitwiseXorExp.rightBitwiseXorExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateBitwiseAndExpr(bitwiseXorExp->bitwiseXorExp.bitwiseAndExp, f, map);
 	switch (bitwiseXorExp->bitwiseXorExp.op)
@@ -192,6 +213,7 @@ void generateBitwiseXorExpr(ASTNode * bitwiseXorExp, FILE * f, HashMap *map)
 	case '^':
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "xorl  %%ecx, %%eax\n");
+		
 	default:
 		break;
 	}
@@ -202,6 +224,7 @@ void generateBitwiseOrExpr(ASTNode * bitwiseOrExp, FILE * f, HashMap *map)
 	if (bitwiseOrExp->type == BINARY_OP) {
 		generateBitwiseOrExpr(bitwiseOrExp->bitwiseOrExp.rightBitwiseOrExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateBitwiseXorExpr(bitwiseOrExp->bitwiseOrExp.bitwiseXorExp, f, map);
 	switch (bitwiseOrExp->bitwiseOrExp.op)
@@ -209,6 +232,7 @@ void generateBitwiseOrExpr(ASTNode * bitwiseOrExp, FILE * f, HashMap *map)
 	case '|':
 		fprintf(f, "pop  %%ecx\n");
 		fprintf(f, "orl  %%ecx, %%eax\n");
+		
 	default:
 		break;
 	}
@@ -219,6 +243,7 @@ void generateLogicalAndExpr(ASTNode * logAndExpr, FILE * f, HashMap *map)
 	if (logAndExpr->type == BINARY_OP) {
 		generateLogicalAndExpr(logAndExpr->logicalAndExp.rightLogicalAndExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateBitwiseOrExpr(logAndExpr->logicalAndExp.bitwiseOrExp, f, map);
 	if (!strcmp(logAndExpr->logicalAndExp.op, "&&")) {
@@ -229,6 +254,7 @@ void generateLogicalAndExpr(ASTNode * logAndExpr, FILE * f, HashMap *map)
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "setne  %%al\n");
 		fprintf(f, "andb  %%cl, %%al\n");
+		
 	}
 	//Do stuff with op
 }
@@ -238,6 +264,7 @@ void generateLogicalOrExpr(ASTNode * expr, FILE *f, HashMap *map)
 	if (expr->type == BINARY_OP) {
 		generateExpr(expr->logicalOrExp.rightExp, f, map);
 		fprintf(f, "push  %%eax\n");
+		
 	}
 	generateLogicalAndExpr(expr->logicalOrExp.logicalAndExp, f, map);
 	if (!strcmp(expr->logicalOrExp.op, "||")) {
@@ -245,6 +272,7 @@ void generateLogicalOrExpr(ASTNode * expr, FILE *f, HashMap *map)
 		fprintf(f, "orl  %%ecx, %%eax\n");
 		fprintf(f, "movl  $0, %%eax\n");
 		fprintf(f, "setne  %%al\n");
+		
 	}
 	//Do stuff with op
 }
@@ -264,6 +292,7 @@ void generateStatement(ASTNode * statement, FILE *f, HashMap *map)
 {
 	if (statement->type == DECLARE_STATEMENT) {
 		if (lookupNode(map, statement->statement.id) != -1) {
+			printf("Variable already declared\n");
 			return;
 		}
 		else {
@@ -271,8 +300,9 @@ void generateStatement(ASTNode * statement, FILE *f, HashMap *map)
 				generateExpr(statement->statement.optinalAssignExpression, f, map);
 			} 
 			insertHashMap(map, statement->statement.id, stackOffset);
-			stackOffset -= 4;
 			fprintf(f, "push  %%eax\n");
+			stackOffset -= 4;
+			//fprintf(f, "xor  %%eax, %%eax\n");
 		}
 	}
 	else {
