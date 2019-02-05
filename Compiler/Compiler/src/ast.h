@@ -1,10 +1,10 @@
 #ifndef AST_H
 #define AST_H
-typedef enum ReturnType {
+typedef enum Type {
 	INT
-} ReturnType;
+} Type;
 
-const char *getReturnType(ReturnType r);
+const char *getReturnType(Type r);
 
 /*
 Crazy ASTNode struct,
@@ -14,7 +14,7 @@ with an enum of the type it currently is so you can accsess the correct union
 typedef struct ASTNode {
 	enum { PROGRAM, FUNCTION, STATEMENT, EXPRESSION, TERM, FACTOR, 
 		UNARY_OPERATOR, CONSTANT_INT, BINARY_OP, DECLARE_STATEMENT, 
-		RETURN_STATEMENT, ASSIGN_EXPRESSION, VARIABLE } type;
+		RETURN_STATEMENT, ASSIGN_EXPRESSION, COMPOUND_ASSIGN_EXPRESSION, VARIABLE } type;
 	union {
 		//Probabaly move value into factor type
 		int value;
@@ -130,7 +130,7 @@ typedef struct ASTNode {
 				struct ASTNode *precedenceExp;
 				struct {
 					char *id;
-					char op;
+					char op[4];
 					struct ASTNode *expression;
 				};
 			};
@@ -144,7 +144,7 @@ typedef struct ASTNode {
 			//Zero or more statements
 			//Only support int right now
 			//<function> ::= "int" <id> "(" ")" "{" { <statement> } "}"
-			ReturnType returnType;
+			Type returnType;
 			char *name;
 			int statementCount;
 			struct ASTNode **body;

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "ast.h"
 
-const char * getReturnType(ReturnType r)
+const char * getReturnType(Type r)
 {
 	switch (r) {
 	case INT: return "INT";
@@ -50,7 +50,7 @@ void freeExprAST(ASTNode * expr)
 	if (expr->type == EXPRESSION) {
 		freeLogicalOrExprAST(expr->expression.precedenceExp);
 	}
-	else if (expr->type == ASSIGN_EXPRESSION) {
+	else if (expr->type == ASSIGN_EXPRESSION || expr->type == COMPOUND_ASSIGN_EXPRESSION) {
 		freeExprAST(expr->expression.expression);
 	}
 	free(expr);

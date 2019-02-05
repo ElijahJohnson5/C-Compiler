@@ -141,14 +141,100 @@ ASTNode * parseExpr(TokenList ** tokens)
 	ASTNode *expr = malloc(sizeof(ASTNode));
 	expr->type = EXPRESSION;
 	Token token = (*tokens)->token;
-	if (token.type == IDENTIFIER && (*tokens)->next->token.type == ASSIGNMENT) {
-		expr->type = ASSIGN_EXPRESSION;
-		expr->expression.id = token.value.identifier;
-		*tokens = (*tokens)->next;
-		token = (*tokens)->token;
-		*tokens = (*tokens)->next;
-		expr->expression.op = token.value.token[0];
-		expr->expression.expression = parseExpr(tokens);
+	if (token.type == IDENTIFIER && ((*tokens)->next->token.type == ASSIGNMENT || (*tokens)->next->next->token.type == ASSIGNMENT)) {
+		switch ((*tokens)->next->token.type) {
+		case ASSIGNMENT:
+			expr->type = ASSIGN_EXPRESSION;
+			expr->expression.id = token.value.identifier;
+			*tokens = (*tokens)->next;
+			token = (*tokens)->token;
+			*tokens = (*tokens)->next;
+			expr->expression.op[0] = token.value.token[0];
+			expr->expression.op[1] = 0;
+			expr->expression.op[2] = 0;
+			expr->expression.op[3] = 0;
+			expr->expression.expression = parseExpr(tokens);
+			break;
+		case ADDITION:
+		case MINUS:
+		case DIVISION:
+		case MULTIPLICATION:
+		case MODULUS:
+		case BITWISE_AND:
+		case BITWISE_OR:
+		case BITWISE_XOR:
+			if ((*tokens)->next->next->token.type == ASSIGNMENT) {
+				TokenList *firstNewNode = createTokenList();
+				firstNewNode->token.type = token.type;
+				firstNewNode->token.value.identifier = token.value.identifier;
+				TokenList *assignment = createTokenList();
+				assignment->token.type = (*tokens)->next->next->token.type;
+				assignment->token.value.token[0] = (*tokens)->next->next->token.value.token[0];
+				assignment->token.value.token[1] = 0;
+				TokenList *secondnewNode = createTokenList();
+				secondnewNode->token.type = token.type;
+				secondnewNode->token.value.identifier = token.value.identifier;
+				TokenList *thirdNewNode = createTokenList();
+				thirdNewNode->token.type = (*tokens)->next->token.type;
+				thirdNewNode->token.value.token[0] = (*tokens)->next->token.value.token[0];
+				thirdNewNode->token.value.token[1] = 0;
+				expr->type = COMPOUND_ASSIGN_EXPRESSION;
+				expr->expression.id = token.value.identifier;
+				*tokens = (*tokens)->next;
+				token = (*tokens)->token;
+				expr->expression.op[0] = token.value.token[0];
+				*tokens = (*tokens)->next;
+				token = (*tokens)->token;
+				expr->expression.op[1] = token.value.token[0];
+				expr->expression.op[2] = 0;
+				expr->expression.op[3] = 0;
+				firstNewNode->next = assignment;
+				assignment->next = secondnewNode;
+				secondnewNode->next = thirdNewNode;
+				thirdNewNode->next = (*tokens)->next;
+				(*tokens)->next = firstNewNode;
+				*tokens = (*tokens)->next;
+				expr->expression.expression = parseExpr(tokens);
+			}
+			break;
+		case BITWISE_SHIFT_LEFT:
+		case BITWISE_SHIFT_RIGHT:
+			if ((*tokens)->next->next->token.type == ASSIGNMENT) {
+				TokenList *firstNewNode = createTokenList();
+				firstNewNode->token.type = token.type;
+				firstNewNode->token.value.identifier = token.value.identifier;
+				TokenList *assignment = createTokenList();
+				assignment->token.type = (*tokens)->next->next->token.type;
+				assignment->token.value.token[0] = (*tokens)->next->next->token.value.token[0];
+				assignment->token.value.token[1] = 0;
+				TokenList *secondnewNode = createTokenList();
+				secondnewNode->token.type = token.type;
+				secondnewNode->token.value.identifier = token.value.identifier;
+				TokenList *thirdNewNode = createTokenList();
+				thirdNewNode->token.type = (*tokens)->next->token.type;
+				thirdNewNode->token.value.token[0] = (*tokens)->next->token.value.token[0];
+				thirdNewNode->token.value.token[1] = (*tokens)->next->token.value.token[1];
+				thirdNewNode->token.value.token[2] = 0;
+				expr->type = COMPOUND_ASSIGN_EXPRESSION;
+				expr->expression.id = token.value.identifier;
+				*tokens = (*tokens)->next;
+				token = (*tokens)->token;
+				expr->expression.op[0] = token.value.token[0];
+				*tokens = (*tokens)->next;
+				token = (*tokens)->token;
+				expr->expression.op[1] = token.value.token[0];
+				expr->expression.op[2] = token.value.token[1];
+				expr->expression.op[3] = 0;
+				firstNewNode->next = assignment;
+				assignment->next = secondnewNode;
+				secondnewNode->next = thirdNewNode;
+				thirdNewNode->next = (*tokens)->next;
+				(*tokens)->next = firstNewNode;
+				*tokens = (*tokens)->next;
+				expr->expression.expression = parseExpr(tokens);
+			}
+			break;
+		}
 		return expr;
 	} else {
 		expr->expression.precedenceExp = parseLogicalOrExpr(tokens);
@@ -433,7 +519,11 @@ void printExpr(ASTNode * expr)
 	}
 	else if (expr->type == ASSIGN_EXPRESSION) {
 		printLogicalOrExpr(expr->expression.precedenceExp);
-		printf(" INT<%s> %c ", expr->expression.id, expr->expression.op);
+		printf(" INT<%s> %s ", expr->expression.id, expr->expression.op);
+		printExpr(expr->expression.expression);
+	}
+	else if (expr->type == COMPOUND_ASSIGN_EXPRESSION) {
+		printLogicalOrExpr(expr->expression.precedenceExp);
 		printExpr(expr->expression.expression);
 	}
 }

@@ -89,8 +89,8 @@ void generateAdditiveExpr(ASTNode * addExpr, FILE * f, HashMap *map)
 	case '-':
 		fprintf(f, "pop  %%ecx\n");
 		
-		fprintf(f, "subl  %%eax, %%ecx\n");
-		fprintf(f, "movl  %%ecx, %%eax\n");
+		fprintf(f, "subl  %%ecx, %%eax\n");
+		//fprintf(f, "movl  %%ecx, %%eax\n");
 		break;
 	}
 }
@@ -283,6 +283,9 @@ void generateExpr(ASTNode * expr, FILE *f, HashMap *map)
 		generateExpr(expr->expression.expression, f, map);
 		fprintf(f, "movl  %%eax, %d(%%ebp)\n", lookupNode(map, expr->expression.id));
 	}
+	else if (expr->type == COMPOUND_ASSIGN_EXPRESSION) {
+		generateExpr(expr->expression.expression, f, map);
+	}
 	else {
 		generateLogicalOrExpr(expr->expression.precedenceExp, f, map);
 	}
@@ -328,4 +331,5 @@ void generateAssembly(ASTNode * root, FILE *f)
 {
 	HashMap *map = createNewHashMap(2);
 	generateFunction(root->program.children, f, map);
+	freeHashMap(map);
 }
