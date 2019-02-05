@@ -5,21 +5,6 @@
 #include "parser.h"
 #include "ast.h"
 
-TokenType PRECEDENCE_ORDER[][11] = {
-	{LOGICAL_NEGATION, BITWISE_COMPLIMENT, MINUS},
-	{MULTIPLICATION, DIVISION, MODULUS},
-	{ADDITION, MINUS},
-	{BITWISE_SHIFT_LEFT, BITWISE_SHIFT_RIGHT},
-	{GREATER_THAN, GREATER_THAN_EQUAL_TO, LESS_THAN, LESS_THAN_EQUAL_TO},
-	{EQUAL_TO, NOT_EQUAL_TO},
-	{BITWISE_AND},
-	{BITWISE_XOR},
-	{BITWISE_OR},
-	{LOGICAL_AND},
-	{LOGICAL_OR},
-	{ASSIGNMENT}
-};
-
 ASTNode * parseProgram(TokenList** tokens)
 {
 	ASTNode *root = malloc(sizeof(ASTNode));
@@ -220,10 +205,10 @@ ASTNode * parseExpr(TokenList ** tokens)
 				*tokens = (*tokens)->next;
 				token = (*tokens)->token;
 				expr->expression.op[0] = token.value.token[0];
+				expr->expression.op[1] = token.value.token[1];
 				*tokens = (*tokens)->next;
 				token = (*tokens)->token;
-				expr->expression.op[1] = token.value.token[0];
-				expr->expression.op[2] = token.value.token[1];
+				expr->expression.op[2] = token.value.token[0];
 				expr->expression.op[3] = 0;
 				firstNewNode->next = assignment;
 				assignment->next = secondnewNode;
