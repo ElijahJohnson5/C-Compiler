@@ -102,7 +102,7 @@ int insertHashMap(HashMap * map, char * key, int stackOffset)
 
 void freeHashMap(HashMap * map)
 {
-	for (int i = 0; i < map->elementCount; i++) {
+	for (int i = 0; i < map->size; i++) {
 		MapNode *temp = map->list[i];
 		freeNodeList(temp);
 	}
