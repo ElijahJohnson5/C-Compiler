@@ -33,7 +33,7 @@ typedef struct TokenList {
 } TokenList;
 
 void freeTokenList(TokenList * list);
-void freeToken(Tokne token);
+void freeToken(Token token);
 //Create new node for list
 TokenList* createTokenList();
 void printTokenList(TokenList *list);
