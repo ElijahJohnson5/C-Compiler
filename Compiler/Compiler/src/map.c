@@ -106,6 +106,7 @@ void freeHashMap(HashMap * map)
 		MapNode *temp = map->list[i];
 		freeNodeList(temp);
 	}
+	free(map);
 }
 
 void freeNodeList(MapNode * node)

@@ -12,7 +12,20 @@ void freeTokenList(TokenList * list)
 	//Free list recursivly
 	if (list) {
 		freeTokenList(list->next);
+		freeToken(list->token);
 		free(list);
+	}
+}
+
+void freeToken(Token token)
+{
+	switch (token.type) {
+	case KEYWORD:
+		free(token.value.keyword);
+		break;
+	case IDENTIFIER:
+		free(token.value.identifier);
+		break;
 	}
 }
 
