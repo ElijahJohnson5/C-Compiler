@@ -114,6 +114,7 @@ void freeNodeList(MapNode * node)
 {
 	if (node) {
 		freeNodeList(node->next);
+		free(node->key);
 		free(node);
 	}
 }
