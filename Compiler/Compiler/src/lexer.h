@@ -3,6 +3,7 @@
 
 char *readFileToString(FILE *f);
 struct TokenList* tokenizeFile(char *fileString, int *tokenCount);
-void removeSpaces(char *source);
+void removeNewLinesTabs(char *source);
+Token getNextToken(char **fileString);
 
 #endif // !LEXER_H

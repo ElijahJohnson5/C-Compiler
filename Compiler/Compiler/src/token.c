@@ -5,7 +5,7 @@
 #include <ctype.h>
 
 //Global keywords we support
-char *KEYWORDS[] = { "int", "return" };
+char *KEYWORDS[] = { "int", "return", "if", "else" };
 
 void freeTokenList(TokenList * list)
 {
@@ -22,9 +22,6 @@ void freeToken(Token token)
 	switch (token.type) {
 	case KEYWORD:
 		free(token.value.keyword);
-		break;
-	case IDENTIFIER:
-		free(token.value.identifier);
 		break;
 	}
 }
@@ -84,6 +81,43 @@ const char * getTokenType(TokenType type)
 	return NULL;
 }
 
+int getTokenTypeFromString(char * string)
+{
+	int value = -1;
+	switch (strlen(string)) {
+	case 1:
+		if ((value = isToken(string)) != -1) {
+			return value;
+		}
+
+		if ((value = isLiteral(string)) != -1) {
+			return INT_LITERAL;
+		}
+		return IDENTIFIER;
+	case 2:
+		if ((value = isMoreThanOneCharToken(string)) != -1) {
+			return value;
+		}
+		if ((value = isLiteral(string)) != -1) {
+			return INT_LITERAL;
+		}
+		return IDENTIFIER;
+	default:
+		if (isKeyword(string)) {
+			return KEYWORD;
+		}
+		if ((value = isMoreThanOneCharToken(string)) != -1) {
+			return value;
+		}
+		if ((value = isLiteral(string)) != -1) {
+			return INT_LITERAL;
+		}
+		return IDENTIFIER;
+	}
+
+	return -1;
+}
+
 int twoCharTokenType(TokenType type)
 {
 	switch (type) {
@@ -121,7 +155,7 @@ int twoCharTokenType(TokenType type)
 }
 
 //Check if a string is a two char token
-int isTwoCharToken(char *toCheck) 
+int isMoreThanOneCharToken(char *toCheck) 
 {
 	if (!strcmp(toCheck, "&&")) {
 		return LOGICAL_AND;

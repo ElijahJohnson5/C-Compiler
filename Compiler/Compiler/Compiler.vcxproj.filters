@@ -159,6 +159,9 @@
     <ClCompile Include="tests\statement\compound_assign.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\if.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\generate.h">

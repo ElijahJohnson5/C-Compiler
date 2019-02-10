@@ -40,8 +40,9 @@ void printTokenList(TokenList *list);
 
 const char* getTokenType(TokenType type);
 
+int getTokenTypeFromString(char * string);
 int twoCharTokenType(TokenType type);
-int isTwoCharToken(char *toCheck);
+int isMoreThanOneCharToken(char *toCheck);
 int isToken(char *toCheck);
 char *isKeyword(char *toCheck);
 int isLiteral(char *toCheck);

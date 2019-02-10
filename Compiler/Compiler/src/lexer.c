@@ -19,7 +19,7 @@ char * readFileToString(FILE * f)
 	string = calloc(size + 1, sizeof(char));
 	fread(string, size, 1, f);
 	string[size] = 0;
-	removeSpaces(string);
+	removeNewLinesTabs(string);
 	return string;
 }
 
@@ -31,139 +31,89 @@ TokenList * tokenizeFile(char * fileString, int *tokenCount)
 	char *value;
 	int i = 0;
 	*tokenCount = 0;
-	//Arbitrary sized current buffer
-	//TODO make sure this works for any valid c file
-	char *current = calloc(200, sizeof(char));
-	char *twoCharToken = calloc(3, sizeof(char));
-	twoCharToken[2] = 0;
-
+	//Get all tokens from the file
 	while (*fileString) {
-		//Build up a string of current chars
-		current[i] = *fileString++;
-		twoCharToken[0] = current[i];
-		twoCharToken[1] = *fileString;
-		i++;
-		//Check if it is a token
-		//If it is add the token to the list and clear the current string
-		if ((tokenType = isToken(current)) != -1) {
-			int temp;
-			//Check if the next char plus current char is a two char token
-			if ((temp = isTwoCharToken(twoCharToken)) != -1) {
-				head->token.type = temp;
-				head->token.value.token[0] = *current;
-				head->token.value.token[1] = *fileString++;
-				head->token.value.token[2] = 0;
-				head->token.value.token[3] = 0;
-				(*tokenCount)++;
-				memset(current, 0, strlen(current));
-				i = 0;
-				if (*fileString) {
-					head->next = createTokenList();
-					head = head->next;
-				}
-			}
-			else {
-				
-				head->token.type = tokenType;
-				head->token.value.token[0] = *current;
-				head->token.value.token[1] = 0;
-				head->token.value.token[2] = 0;
-				head->token.value.token[3] = 0;
-				(*tokenCount)++;
-				memset(current, 0, strlen(current));
-				i = 0;
-				if (*fileString) {
-					head->next = createTokenList();
-					head = head->next;
-				}
-			}
-			continue;
-		}
-		//If we have a two char token
-		if ((tokenType = isTwoCharToken(twoCharToken)) != -1) {
-			head->token.type = tokenType;
-			head->token.value.token[0] = *current;
-			head->token.value.token[1] = *fileString++;
-			head->token.value.token[2] = 0;
-			head->token.value.token[3] = 0;
-			(*tokenCount)++;
-			memset(current, 0, strlen(current));
-			i = 0;
-			if (*fileString) {
-				head->next = createTokenList();
-				head = head->next;
-			}
-			continue;
-		}
-
-		twoCharToken[0] = *fileString;
-		twoCharToken[1] = *(fileString + 1);
-
-		//Check if it is a keyword, if it is add it to the list
-		//and clear current
-		//TODO make sure keywords are only read if they are actually a keyword
-		if ((value = isKeyword(current)) != NULL) {
-			head->token.type = KEYWORD;
-			head->token.value.keyword = malloc(strlen(value) + 1 * sizeof(char));
-			strncpy(head->token.value.keyword, value, strlen(value) + 1);
-			(*tokenCount)++;
-			memset(current, 0, strlen(current));
-			i = 0;
-			if (*fileString) {
-				head->next = createTokenList();
-				head = head->next;
-			}
-			continue;
-		}
-
-		//Check if it is a int literal and the next char is a token
-		if ((tokenType = isLiteral(current)) != -1 && (isToken(fileString) != -1 || isTwoCharToken(twoCharToken) != -1)) {
-			head->token.type = INT_LITERAL;
-			head->token.value.intLiteral = tokenType;
-			(*tokenCount)++;
-			memset(current, 0, strlen(current));
-			i = 0;
-			if (*fileString) {
-				head->next = createTokenList();
-				head = head->next;
-			}
-			continue;
-		}
-
-		//If the next char is a token then we have an identifier
-		if (isToken(fileString) != -1 || isTwoCharToken(twoCharToken) != -1) {
-			head->token.type = IDENTIFIER;
-			//Copy string in
-			head->token.value.identifier = malloc(strlen(current) + 1 * sizeof(char));
-			strncpy(head->token.value.identifier, current, strlen(current) + 1);
-			(*tokenCount)++;
-			memset(current, 0, strlen(current));
-			i = 0;
-			if (*fileString) {
-				head->next = createTokenList();
-				head = head->next;
-			}
-			continue;
+		head->token = getNextToken(&fileString);
+		(*tokenCount)++;
+		if (*fileString) {
+			head->next = createTokenList();
+			head = head->next;
 		}
 	}
-	//Free allocated memory
-	free(current);
-	free(twoCharToken);
-
 	return ret;
 }
 
-//Remove spaces from a string
-void removeSpaces(char * source)
+//Remove newlines and tabs from a string
+//need spaces for some context
+void removeNewLinesTabs(char * source)
 {
 	char* i = source;
 	char* j = source;
 	while (*j != 0)
 	{
 		*i = *j++;
-		if (!isspace(*i)) {
+		if (!(*i == '\n' || *i == '\t' || *i == '\r')) {
 			i++;
 		}
 	}
 	*i = 0;
+}
+
+Token getNextToken(char ** fileString)
+{
+	Token token;
+	int i = 0;
+	char current[512];
+	//These are tokesn that wont have a space after them
+	if (**fileString == ';' || **fileString == '{' || **fileString == '}' || **fileString == '(' || **fileString == ')') {
+		current[i++] = **fileString;
+		(*fileString)++;
+		if (**fileString == ' ') {
+			(*fileString)++;
+		}
+		current[i] = 0;
+		token.type = getTokenTypeFromString(current);
+		token.value.token[0] = *current;
+		token.value.token[1] = 0;
+		return token;
+	}
+	//Loop until we hit a space or one of the tokens above
+	while (**fileString != ' ' && **fileString != ';' && **fileString != '{' && **fileString != '}' && **fileString != '(' && **fileString != ')') {
+		//Check if we have a token or multiple char token
+		if (isToken(current) != -1) {
+			break;
+		}
+
+		if (isMoreThanOneCharToken(current) != -1) {
+			break;
+		}
+		current[i++] = **fileString;
+		(*fileString)++;
+	}
+	if (**fileString == ' ') {
+		(*fileString)++;
+	}
+	current[i] = 0;
+	token.type = getTokenTypeFromString(current);
+	switch (token.type) {
+		//Set the correct token value
+	case KEYWORD:
+		token.value.keyword = malloc((strlen(current) + 1) * sizeof(char));
+		strncpy(token.value.keyword, current, strlen(current) + 1);
+		break;
+	case IDENTIFIER:
+		token.value.identifier = malloc((strlen(current) + 1) * sizeof(char));
+		strncpy(token.value.identifier, current, strlen(current) + 1);
+		break;
+	case INT_LITERAL:
+		token.value.intLiteral = isLiteral(current);
+		break;
+	default:
+		for (int j = 0; j < i; j++) {
+			token.value.token[j] = current[j];
+		}
+		break;
+	}
+	//Return the next token
+	return token;
 }
