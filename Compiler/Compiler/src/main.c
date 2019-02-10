@@ -30,10 +30,10 @@ int main(int argc, char **argv) {
 		ASTNode *root = parseProgram(&tokenList);
 		freeTokenList(headRef);
 		prettyPrintAST(root);
-		generateAssembly(root, writeTo);
-		fclose(writeTo);
-		freeAST(root);
-		free(file);
+		//generateAssembly(root, writeTo);
+		//fclose(writeTo);
+		//freeAST(root);
+		//free(file);
 	}
 	system("PAUSE");
 	return 0;

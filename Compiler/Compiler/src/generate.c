@@ -293,24 +293,24 @@ void generateExpr(ASTNode * expr, FILE *f, HashMap *map)
 
 void generateStatement(ASTNode * statement, FILE *f, HashMap *map)
 {
-	if (statement->type == DECLARE_STATEMENT) {
+	/*if (statement->type == DECLARATION) {
 		if (lookupNode(map, statement->statement.id) != -1) {
 			printf("Variable already declared\n");
 			return;
 		}
 		else {
-			if (statement->statement.optinalAssignExpression != NULL) {
-				generateExpr(statement->statement.optinalAssignExpression, f, map);
+			if (statement->statement.optionalAssignExpression != NULL) {
+				generateExpr(statement->statement.optionalAssignExpression, f, map);
 			} 
 			insertHashMap(map, statement->statement.id, stackOffset);
 			fprintf(f, "push  %%eax\n");
 			stackOffset -= 4;
 			//fprintf(f, "xor  %%eax, %%eax\n");
 		}
-	}
-	else {
+	}*/
+	//else {
 		generateExpr(statement->statement.expression, f, map);
-	}
+	//}
 }
 
 void generateFunction(ASTNode * function, FILE *f, HashMap *map)
@@ -319,7 +319,7 @@ void generateFunction(ASTNode * function, FILE *f, HashMap *map)
 	fprintf(f, "_%s:\n", function->function.name);
 	fprintf(f, "push  %%ebp\n");
 	fprintf(f, "movl  %%esp, %%ebp\n");
-	for (int i = 0; i < function->function.statementCount; i++) {
+	for (int i = 0; i < function->function.blockItemCount; i++) {
 		generateStatement(function->function.body[i], f, map);
 	}
 	fprintf(f, "movl  %%ebp, %%esp\n");

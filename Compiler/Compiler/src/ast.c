@@ -20,7 +20,7 @@ void freeAST(ASTNode * root)
 //Update for variable amount of statements
 void freeFunctionAST(ASTNode * function)
 {
-	for (int i = 0; i < function->function.statementCount; i++) {
+	for (int i = 0; i < function->function.blockItemCount; i++) {
 		freeStatementAST(function->function.body[i]);
 	}
 	free(function->function.body);
@@ -33,9 +33,11 @@ void freeStatementAST(ASTNode * statement)
 	if (statement->type == RETURN_STATEMENT) {
 		freeExprAST(statement->statement.returnExpression);
 	}
-	else if (statement->type == DECLARE_STATEMENT) {
-		if (statement->statement.optinalAssignExpression != NULL) {
-			freeExprAST(statement->statement.optinalAssignExpression);
+	else if (statement->type == IF_STATEMENT) {
+		freeExprAST(statement->statement.expression);
+		freeStatementAST(statement->statement.statement);
+		if (statement->statement.optionalElse) {
+			freeStatementAST(statement->statement.optionalElse);
 		}
 	}
 	else {

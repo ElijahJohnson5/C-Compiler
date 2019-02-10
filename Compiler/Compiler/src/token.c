@@ -98,6 +98,9 @@ int getTokenTypeFromString(char * string)
 		if ((value = isMoreThanOneCharToken(string)) != -1) {
 			return value;
 		}
+		if (isKeyword(string)) {
+			return KEYWORD;
+		}
 		if ((value = isLiteral(string)) != -1) {
 			return INT_LITERAL;
 		}
@@ -233,7 +236,7 @@ int isToken(char * toCheck)
 //Check string against keyword strings
 char * isKeyword(char * toCheck)
 {
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 4; i++) {
 		if (!strcmp(toCheck, KEYWORDS[i])) {
 			return toCheck;
 		}

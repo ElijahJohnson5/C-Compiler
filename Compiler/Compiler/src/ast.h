@@ -13,8 +13,8 @@ with an enum of the type it currently is so you can accsess the correct union
 */
 typedef struct ASTNode {
 	enum { PROGRAM, FUNCTION, STATEMENT, EXPRESSION, TERM, FACTOR, 
-		UNARY_OPERATOR, CONSTANT_INT, BINARY_OP, DECLARE_STATEMENT, 
-		RETURN_STATEMENT, ASSIGN_EXPRESSION, COMPOUND_ASSIGN_EXPRESSION, VARIABLE } type;
+		UNARY_OPERATOR, CONSTANT_INT, BINARY_OP, DECLARATION, BLOCK_ITEM,
+		RETURN_STATEMENT, ASSIGN_EXPRESSION, COMPOUND_ASSIGN_EXPRESSION, VARIABLE, IF_STATEMENT } type;
 	union {
 		//Probabaly move value into factor type
 		int value;
@@ -143,23 +143,35 @@ typedef struct ASTNode {
 		struct {
 			//Zero or more statements
 			//Only support int right now
-			//<function> ::= "int" <id> "(" ")" "{" { <statement> } "}"
+			//<function> ::= "int" <id> "(" ")" "{" { <block-item> } "}"
 			Type returnType;
 			char *name;
-			int statementCount;
+			int blockItemCount;
 			struct ASTNode **body;
 		} function;
 		struct {
+			union {
+				struct ASTNode *statement;
+				struct ASTNode *declaration;
+			};
+		} blockItem;
+		struct {
+			//<declaration> ::= "int" <id> [ = <exp>] ";"
+			char *id;
+			struct ASTNode *declaration;
+			struct ASTNode *optionalAssignExpression;
+		} declaration;
+		struct {
 			//<statement> ::= "return" <exp> ";"
 			//				| <exp> ";"
-			//				| "int" <id> [ = <exp>] ";"
+			//				| "if" "(" <exp> ")" <statement> [ "else" <statement> ]
 			union {
 				struct ASTNode *returnExpression;
 				struct ASTNode *expression;
 				struct {
-					//Can be NULL
-					struct ASTNode *optinalAssignExpression;
-					char *id;
+					struct ASTNode *exp;
+					struct ASTNode *statement;
+					struct ASTNode *optionalElse;
 				};
 			};
 		} statement;

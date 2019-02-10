@@ -55,19 +55,20 @@ ASTNode * parseFunction(TokenList** tokens)
 		return NULL;
 	}
 
-	ASTNode *statement = NULL;
+	ASTNode *blockItem = NULL;
 
-	while ((statement = parseStatement(tokens)) != NULL) {
+	while ((blockItem = parseBlockItem(tokens)) != NULL) {
 		if (function->function.body == NULL || statementCount >= currentSize) {
 			currentSize++;
 			function->function.body = realloc(function->function.body, sizeof(ASTNode *) * currentSize);
 		}
-		function->function.body[statementCount++] = statement;
-		if (statement->type == RETURN_STATEMENT) {
+		function->function.body[statementCount++] = blockItem;
+		token = (*tokens)->token;
+		if (token.type == CLOSE_BRACE) {
 			break;
 		}
 	}
-	function->function.statementCount = statementCount;
+	function->function.blockItemCount = statementCount;
 
 	token = (*tokens)->token;
 	*tokens = (*tokens)->next;
@@ -78,33 +79,103 @@ ASTNode * parseFunction(TokenList** tokens)
 	return function;
 }
 
+ASTNode * parseBlockItem(TokenList ** tokens)
+{
+	ASTNode *blockItem = malloc(sizeof(ASTNode));
+	blockItem->type = BLOCK_ITEM;
+	Token token = (*tokens)->token;
+	if (token.type == KEYWORD) {
+		if (!strcmp(token.value.keyword, "if") || !strcmp(token.value.keyword, "return")) {
+			blockItem->type = STATEMENT;
+			blockItem->blockItem.statement = parseStatement(tokens);
+		}
+		else if (!strcmp(token.value.keyword, "int")) {
+			blockItem->type = DECLARATION;
+			blockItem->blockItem.declaration = parseDeclaration(tokens);
+		}
+	}
+	else {
+		blockItem->type = STATEMENT;
+		blockItem->blockItem.statement = parseStatement(tokens);
+	}
+
+	return blockItem;
+}
+
+ASTNode * parseDeclaration(TokenList ** tokens)
+{
+	ASTNode *declaration = malloc(sizeof(ASTNode));
+	declaration->type = DECLARATION;
+	Token token = (*tokens)->token;
+	if (token.type == KEYWORD) {
+		*tokens = (*tokens)->next;
+		token = (*tokens)->token;
+		*tokens = (*tokens)->next;
+		declaration->type = DECLARATION;
+		declaration->declaration.id = token.value.identifier;
+		token = (*tokens)->token;
+		if (token.type == ASSIGNMENT) {
+			*tokens = (*tokens)->next;
+			declaration->declaration.optionalAssignExpression = parseExpr(tokens);
+		}
+		else {
+			declaration->declaration.optionalAssignExpression = NULL;
+		}
+	}
+
+	token = (*tokens)->token;
+	*tokens = (*tokens)->next;
+	if (token.type != SEMICOLON) {
+		//freeDeclarationAST(declaration);
+		return NULL;
+	}
+
+	return declaration;
+}
+
 ASTNode * parseStatement(TokenList** tokens)
 {
 	ASTNode *statement = malloc(sizeof(ASTNode));
 	statement->type = STATEMENT;
 	Token token = (*tokens)->token;
-	if (token.type == KEYWORD && !strcmp(token.value.keyword, "return")) {
-		*tokens = (*tokens)->next;
-		statement->type = RETURN_STATEMENT;
-		statement->statement.returnExpression = parseExpr(tokens);
+	if (token.type == KEYWORD) {
+		if (!strcmp(token.value.keyword, "return")) {
+			*tokens = (*tokens)->next;
+			statement->type = RETURN_STATEMENT;
+			statement->statement.returnExpression = parseExpr(tokens);
+		}
+		else if (!strcmp(token.value.keyword, "if")) {
+			statement->type = IF_STATEMENT;
+			*tokens = (*tokens)->next;
+			token = (*tokens)->token;
+			if (token.type != OPEN_PAREN) {
+				freeStatementAST(statement);
+				return NULL;
+			}
+			*tokens = (*tokens)->next;
+			statement->statement.exp = parseExpr(tokens);
+
+			token = (*tokens)->token;
+			if (token.type != CLOSE_PAREN) {
+				freeStatementAST(statement);
+				return NULL;
+			}
+			*tokens = (*tokens)->next;
+			statement->statement.statement = parseStatement(tokens);
+			token = (*tokens)->token;
+			if (token.type == KEYWORD && !strcmp(token.value.keyword, "else")) {
+				*tokens = (*tokens)->next;
+				statement->statement.optionalElse = parseStatement(tokens);
+			}
+			else {
+				statement->statement.optionalElse = NULL;
+			}
+
+			return statement;
+		}
 	}
 	else if (token.type != KEYWORD) {
 		statement->statement.expression = parseExpr(tokens);
-	}
-	else if (token.type == KEYWORD) {
-		*tokens = (*tokens)->next;
-		token = (*tokens)->token;
-		*tokens = (*tokens)->next;
-		statement->type = DECLARE_STATEMENT;
-		statement->statement.id = token.value.identifier;
-		token = (*tokens)->token;
-		if (token.type == ASSIGNMENT) {
-			*tokens = (*tokens)->next;
-			statement->statement.optinalAssignExpression = parseExpr(tokens);
-		}
-		else {
-			statement->statement.optinalAssignExpression = NULL;
-		}
 	}
 	else {
 		freeStatementAST(statement);
@@ -471,30 +542,57 @@ void printFunction(ASTNode * function)
 	printf("FUN %s %s:\n", getReturnType(function->function.returnType), function->function.name);
 	printf("\t params: ()\n");
 	printf("\t body:\n");
-	for (int i = 0; i < function->function.statementCount; i++) {
-		printStatement(function->function.body[i]);
+	for (int i = 0; i < function->function.blockItemCount; i++) {
+		printBlockItem(function->function.body[i]);
+	}
+}
+
+void printBlockItem(ASTNode * blockItem)
+{
+	if (blockItem->type == STATEMENT) {
+		printStatement(blockItem->blockItem.statement);
+	}
+	else if (blockItem->type == DECLARATION) {
+		printDeclaration(blockItem->blockItem.declaration);
+	}
+	printf("\n");
+}
+
+void printDeclaration(ASTNode * declaration)
+{
+	if (declaration->type == DECLARATION) {
+		printf("\t  INT<%s>", declaration->declaration.id);
+		if (declaration->declaration.optionalAssignExpression) {
+			printf(" = ");
+			printExpr(declaration->declaration.optionalAssignExpression);
+		}
+		printf("\n");
 	}
 }
 
 void printStatement(ASTNode * statement)
 {
 	if (statement->type == RETURN_STATEMENT) {
-		printf("\t  RETURN ");
+		printf(" RETURN ");
 		printExpr(statement->statement.returnExpression);
 	}
-	else if (statement->type == DECLARE_STATEMENT) {
-		printf("\t  INT<%s> ", statement->statement.id);
-		if (statement->statement.optinalAssignExpression != NULL) {
-			printf("=");
-			printExpr(statement->statement.optinalAssignExpression);
+	else if (statement->type == IF_STATEMENT) {
+		printf("\t  IF (");
+		printExpr(statement->statement.exp);
+		printf(")");
+		printf("\n");
+		printf("\t");
+		printStatement(statement->statement.statement);
+		if (statement->statement.optionalElse) {
+			printf("\n\t  ELSE ");
+			printStatement(statement->statement.optionalElse);
 		}
+		
 	}
 	else {
 		printf("\t ");
 		printExpr(statement->statement.expression);
 	}
-
-	printf("\n");
 }
 
 void printExpr(ASTNode * expr)

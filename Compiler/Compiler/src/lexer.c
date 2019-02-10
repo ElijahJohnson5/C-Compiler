@@ -6,7 +6,7 @@
 #include "lexer.h"
 
 /**
-* Read file to string without spaces
+* Read file to string without new lines or tabs
 */
 char * readFileToString(FILE * f)
 {
